@@ -51,7 +51,7 @@ column = t.columns[0]
 trows = len(column.cells) * 3 #multiplier is a work-around for xml parsing limitation
 tcols = len(row.cells)
 
-# Highlight all tables to limegreen (RGB 32CD32 ) if cell contains text "0.5" 
+# Highlight all cells limegreen (RGB 32CD32) if cell contains text "0.5" 
 for i in range(tcols):
     for j in range(trows):
        if t.cell(i,j).text == '0.5':
