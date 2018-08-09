@@ -42,9 +42,6 @@ for i in range(df.shape[0]):
     for j in range(df.shape[-1]):
         t.cell(i+1,j).text = str(df.values[i,j])
 
-from docx.oxml.ns import nsdecls
-from docx.oxml import parse_xml
-
 #get table dimensions to use for a subsequent step
 row = t.rows[0]
 column = t.columns[0]
@@ -52,6 +49,9 @@ trows = len(column.cells) * 3 #multiplier is a work-around for xml parsing limit
 tcols = len(row.cells)
 
 # Highlight all cells limegreen (RGB 32CD32) if cell contains text "0.5" 
+from docx.oxml.ns import nsdecls
+from docx.oxml import parse_xml
+
 for i in range(tcols):
     for j in range(trows):
        if t.cell(i,j).text == '0.5':
