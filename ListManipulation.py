@@ -21,5 +21,15 @@ people[5] = "Aparna"
     
 i = 0
 while i < len(people):
-    print(people[i])
+    print(f"{i}: {people[i]}")
     i += 1
+    
+sounds = ["super", "cali", "fragil", "istic", "expi", "ali", "docious"]
+
+result = str()
+
+for i in sounds:
+    result = result + str(i)
+    result.upper()
+    
+print(result)
