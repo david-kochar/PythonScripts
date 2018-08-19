@@ -30,6 +30,6 @@ result = str()
 
 for i in sounds:
     result = result + str(i)
-    result.upper()
+    result = result.upper()
     
 print(result)
