@@ -10,3 +10,10 @@ instructors = []
 instructors.extend(["Colt","Blue", "Lisa"])
 
 print(instructors)
+
+names = ["John", "David", "John"]
+
+for i in names:
+    names.remove("John")
+
+print(names)
