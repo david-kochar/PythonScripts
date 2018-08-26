@@ -33,3 +33,15 @@ for i in sounds:
     result = result.upper()
     
 print(result)
+
+
+chars = ["a", "b", "c", "a", "d", "a"]
+result = []
+
+i = 0
+while i < len(chars):
+    if chars[i] == "a":
+        result += str(i)
+    i += 1
+
+print(result)
