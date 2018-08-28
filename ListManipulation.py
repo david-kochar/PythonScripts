@@ -34,6 +34,7 @@ for i in sounds:
     
 print(result)
 
+<<<<<<< HEAD
 # Create a list called instructors
 instructors = []
 
@@ -59,3 +60,16 @@ print(instructors)
 
 # Run the tests to make sure you've done this correctly!
 
+=======
+
+chars = ["a", "b", "c", "a", "d", "a"]
+result = []
+
+i = 0
+while i < len(chars):
+    if chars[i] == "a":
+        result += str(i)
+    i += 1
+
+print(result)
+>>>>>>> 696a9f06da444362e1e1ba7caa07081c641fc6ec
