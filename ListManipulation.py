@@ -69,3 +69,55 @@ while i < len(chars):
     i += 1
 
 print(result)
+
+a = [[1, 2, 3, 4], [5, 6], [7, 8, 9]]
+for i in range(len(a)):
+    for j in range(len(a[i])):
+        print(a[i][j], end=' ')
+    print()
+
+#Infinite loop with list mutation
+f = open('Output.txt','w')
+L1 = [1,2]
+for x in L1:
+    L1.append(3)
+    print(x, file=f)
+    
+names = ["Ellie", "Tim", "Matt"] 
+answer = []
+for i in names:
+    answer += i[0][:1]
+print(answer)
+
+names = ["Ellie", "Tim", "Matt"] 
+answer = [name[0] for name in names]
+print(answer)
+
+answer2 = [ num for num in [1, 2, 3, 4, 5, 6] if num % 2 == 0 ]
+print(answer2)
+
+list1 = [1, 2, 3, 4]
+list2 = [3, 4, 5, 6]
+
+answer = [ num for num in [1, 2, 3, 4] if num in [3, 4, 5, 6] ]
+
+print(answer)
+
+names = ["Ellie", "Tim", "Matt"] 
+answer = [name[::-1].lower() for name in names]
+print(answer)
+
+numbers = list(range(0, 101))
+
+answer  = [ num for num in (range(1, 101)) if num % 12 == 0] 
+print (answer)
+
+answer = [ letter for letter in "amazing" if letter not in ["a", "e", "i", "o", "u"] ]
+print(answer)
+
+answer = [[num for num in range(0, 3)] for val in range(1, 4)]
+print(answer)
+
+# 2-D list comprehension array
+answer = [[i for i in range(0,10)] for j in range(0,10)]
+print(answer)
