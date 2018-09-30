@@ -70,10 +70,8 @@ while i < len(chars):
 
 print(result)
 
-<<<<<<< HEAD
 numbers = [1,2,3,4]
 print(numbers[1:3])
-=======
 a = [[1, 2, 3, 4], [5, 6], [7, 8, 9]]
 for i in range(len(a)):
     for j in range(len(a[i])):
@@ -124,5 +122,4 @@ print(answer)
 
 # 2-D list comprehension array
 answer = [[i for i in range(0,10)] for j in range(0,10)]
-print(answer)
->>>>>>> 66f180fc801471c0b991ad2d98784315de1f691f
+print(answer, end = ' ')
