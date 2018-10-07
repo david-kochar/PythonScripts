@@ -90,3 +90,17 @@ def number_compare(num1, num2):
     return "Numbers are equal"
 
 number_compare(2,1)
+
+def single_letter_count(word, letter):
+    letter = letter.lower()
+    word = word.lower()
+    if letter in word:
+        return word.count(letter)
+    return 0
+
+def single_letter_count(string,letter):
+    return string.lower().count(letter.lower())
+
+single_letter_count("Hello World", "h")
+
+
