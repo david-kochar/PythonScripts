@@ -90,3 +90,89 @@ def number_compare(num1, num2):
     return "Numbers are equal"
 
 number_compare(2,1)
+
+#define single_letter_count below:
+def single_letter_count(word, letter):
+    letter = letter.lower()
+    word = word.lower()
+    if letter in word:
+        return word.count(letter)
+    return 0
+
+def multiple_letter_count(word):
+    return { i:word.count(i) for i in word }
+
+multiple_letter_count("awesome")
+    
+def list_manipulation(collection, command, location, value=None):
+    if(command == "remove" and location == "end"):
+        return collection.pop()
+    elif(command == "remove" and location == "beginning"):
+        return collection.pop(0)
+    elif(command == "add" and location == "beginning"):
+        collection.insert(0,value)
+        return collection
+    elif(command == "add" and location == "end"):
+        collection.append(value)
+        return collection
+
+chars = "H s  t"
+
+chars = chars.lower().replace(" ", "")
+
+print(chars)
+    
+def is_palindrome(chars):
+    chars = chars.lower().replace(" ", "")
+    if chars == chars[::-1]:
+        return True
+    return False
+
+is_palindrome('amanaplanacanalpanama')
+
+def frequency(lst, search_term):
+    return lst.count(search_term) 
+
+frequency([1,2,3,4,4,4], 4)
+
+def multiply_even_numbers(lst):
+    total = 1
+    for val in lst:
+        if val % 2 == 0:
+            total = total * val
+    return total
+
+multiply_even_numbers([2,3,4,5,6])
+
+def capitalize(chars):
+    return chars[0].upper() + chars[1:]
+
+capitalize("tim")
+        
+def compact(lst):
+    return [ item for item in lst if item ]
+
+compact([0,1,2,"",[], False, {}, None, "All done"]) # [1,2, "All done"]
+
+
+# flesh out intersection pleaseeeee
+def intersection(a, b):
+    return list(set(a) & set(b))
+
+def isEven(num):
+    return num % 2 == 0
+
+lst = [1,2,3,4]
+truthy_set = [num for num in lst if isEven(num)]
+
+print(truthy_set)
+
+def partition(lst, isEven):
+    truthy_set = set([num for num in lst if isEven(num)])
+    falsy_set  = set(lst) ^ truthy_set
+    return [list(truthy_set), list(falsy_set)]
+
+#def partition(lst, fn):
+#    return [[val for val in lst if fn(val)], [val for val in lst if not fn(val)]]
+
+partition([1,2,3,4], isEven)
