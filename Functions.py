@@ -91,10 +91,8 @@ def number_compare(num1, num2):
 
 number_compare(2,1)
 
-<<<<<<< HEAD
-=======
 #define single_letter_count below:
->>>>>>> b4c89c9d8dc899948fa2d2466378a9503969b418
+
 def single_letter_count(word, letter):
     letter = letter.lower()
     word = word.lower()
@@ -102,14 +100,11 @@ def single_letter_count(word, letter):
         return word.count(letter)
     return 0
 
-<<<<<<< HEAD
 def single_letter_count(string,letter):
     return string.lower().count(letter.lower())
 
 single_letter_count("Hello World", "h")
 
-
-=======
 def multiple_letter_count(word):
     return { i:word.count(i) for i in word }
 
@@ -185,6 +180,19 @@ def partition(lst, isEven):
 
 #def partition(lst, fn):
 #    return [[val for val in lst if fn(val)], [val for val in lst if not fn(val)]]
+    
+power = 5
+print(len(range(power)))
 
-partition([1,2,3,4], isEven)
->>>>>>> b4c89c9d8dc899948fa2d2466378a9503969b418
+for i in range(6):
+    result = i
+    
+print(result)
+
+def exponent_calc(num, power):
+    total = 1
+    for i in range(power):
+        total *= num
+    return total
+
+exponent_calc(2,3)

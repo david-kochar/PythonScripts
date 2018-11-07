@@ -21,6 +21,25 @@ def combine_words(word,**kwargs):
 
 combine_words("child")
 
+<<<<<<< HEAD
+# Write a lambda that accepts a single number and cubes it. Save it in a variable called cube.
+cube = lambda num: num**3
+
+cube(2)
+
+#nums = [1,2,3,4]
+#map(lambda x: x*2, nums)
+
+def decrement_list(lst):
+    return list(map(lambda x: x-1, lst))
+
+decrement_list([1,2,3])
+
+def remove_negatives(lst):
+    return list(filter(lambda x: x >= 0, lst))
+
+remove_negatives([-1, 3, 4, -99])
+=======
 # NO TOUCHING! =================================================================
 def count_sevens(*args):
     return args.count(7)
@@ -65,6 +84,7 @@ def calculate(**kwargs):
     return final
 
 calculate(make_float=False, operation='add', message='You just added', first=2, second=4)
+<<<<<<< HEAD
 
 def is_all_strings(lst):
     return all(type(l) == str for l in lst)
@@ -139,3 +159,6 @@ print(sales.values())
 
 
 
+=======
+>>>>>>> 1ac7b42825c046edbe53d0693ea686ed1591f1c3
+>>>>>>> c8ae8cc54c0802877c79afb477465bd897fbdc98
