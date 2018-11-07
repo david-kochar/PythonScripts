@@ -114,6 +114,7 @@ print(answer)
 
 person = [["name", "Jared"], ["job", "Musician"], ["city", "Bern"]]
 answer = {thing[0]: thing[1] for thing in person}
+print(answer)
 
 for i in range(65,91):
     print(chr(i))

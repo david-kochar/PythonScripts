@@ -65,3 +65,77 @@ def calculate(**kwargs):
     return final
 
 calculate(make_float=False, operation='add', message='You just added', first=2, second=4)
+
+def is_all_strings(lst):
+    return all(type(l) == str for l in lst)
+
+is_all_strings(['a', 'b', 'c'])
+
+is_all_strings([2, 'a', 'b', 'c'])
+
+def extremes(lst):
+    return tuple([min(lst), max(lst)])
+
+extremes([1,2,3,4,5])
+
+for char in reversed([1,2,3]):
+    print(char)
+    
+def max_magnitude(nums):
+    return max((abs(num) for num in nums))
+
+max_magnitude([300, 20, -900])
+
+def sum_even_values(*nums):
+    return sum((num for num in nums if num % 2 == 0), 0)
+
+sum_even_values(1,2,3,4,5,6) # 12
+sum_even_values(4,2,1,10) # 16
+sum_even_values(1) # 0
+
+def sum_floats(*nums):
+    return sum((num for num in nums if type(num) == float), 0)
+
+sum_floats(1.5, 2.4, 'awesome', [], 1) # 3.9
+
+
+t1 = (1,2,3)
+
+t2 = (4,5,6)
+
+t3 = zip(t1,t2)
+
+print(list(t3))
+
+string_split = tuple([char for char in 'hi'])
+
+def interleave(string1, string2):
+    tuple1 = tuple([char for char in string1])
+    tuple2 = tuple([char for char in string2])
+    interleave_list = list(zip(tuple1, tuple2))
+    return ''.join([char[0] + char[1] for char in interleave_list])
+
+interleave('hi', 'ha')
+
+def triple_and_filter(nums):
+    return [num * 3 for num in nums if num % 4 == 0]
+
+triple_and_filter([1,2,3,4]) # [12]
+
+names = [{'first': 'Elie', 'last': 'Schoppik'}, {'first': 'Colt', 'last': 'Steele'}]
+
+#def extract_full_name(l):
+#    return list(map(lambda val: "{} {}".format(val['first'], val['last']), l))
+
+def extract_full_name(dictlist):
+    return [name[0] + ' ' + name[1] for name in [list(name.values()) for name in dictlist]]
+
+extract_full_name(names)
+
+sales = { 'apple': 2, 'orange': 3, 'grapes': 4 }
+
+print(sales.values())
+    
+
+
+
