@@ -24,8 +24,8 @@ def find_primes(num1, num2):
     return set([i for i in lst if lst.count(i) <= 2])
  
 exam_grades_under_50 = find_primes(2,50)
-exam_grades_under_20 = sorted(exam_grades_under_50.difference(find_primes(21,50)))
-exam_grades_under_50_over_20 = sorted(exam_grades_under_50.difference(exam_grades_under_20))
+exam_grades_under_20 = exam_grades_under_50.difference(find_primes(21,50))
+exam_grades_under_50_over_20 = exam_grades_under_50.difference(exam_grades_under_20)
 
 print(f"Exam grades under 50 are {exam_grades_under_50}")
 print(f"Exam grades under 20 are {exam_grades_under_20}")
