@@ -155,10 +155,4 @@ extract_full_name(names)
 sales = { 'apple': 2, 'orange': 3, 'grapes': 4 }
 
 print(sales.values())
-    
 
-
-
-=======
->>>>>>> 1ac7b42825c046edbe53d0693ea686ed1591f1c3
->>>>>>> c8ae8cc54c0802877c79afb477465bd897fbdc98
