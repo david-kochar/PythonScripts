@@ -2,6 +2,8 @@
 """
 Created on Mon Nov 19 14:37:35 2018
 
+@author: DK
+
 Given the following JSON string, parse it and write the data records to a csv 
 file called fruits.csv.
 
@@ -14,7 +16,6 @@ file called fruits.csv.
     ]
 }
 
-@author: DK
 """
 
 import json
