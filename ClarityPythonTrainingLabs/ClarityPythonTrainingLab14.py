@@ -26,6 +26,7 @@ sqlite_db = 'inventory.sqlite'
 conn = sqlite3.connect(sqlite_db)
 inventory_connect = conn.cursor()
 
+# Execute DDL
 inventory_connect.execute(
         'CREATE TABLE {table_name} ({name} {name_def}, {quantity} \
         {quantity_def}, {cost} {cost_def})'.format(table_name="fruits",
@@ -33,7 +34,8 @@ inventory_connect.execute(
         quantity ="quantity", quantity_def="integer",
         cost = "cost", cost_def = "double" )
         )
-        
+
+#Insert fruits        
 inventory_connect.execute(
         'INSERT INTO {table_name} ({name}, {quantity}, {cost}) \
         VALUES ("apple", 20, 1.01 )'.format(table_name="fruits",
@@ -58,13 +60,15 @@ inventory_connect.execute(
         cost = "cost")
         )
 
+#Update apple quantity
 inventory_connect.execute(
         'UPDATE {table_name} SET {quantity} = 0 \
         WHERE name = "apple"'.format(table_name="fruits",
         name = "name",
         quantity = "quantity")
         )
-        
+
+#Delete record where quantity is zero        
 inventory_connect.execute(
         'DELETE FROM {table_name} WHERE {quantity} = 0'.\
         format(table_name="fruits", quantity = "quantity")
