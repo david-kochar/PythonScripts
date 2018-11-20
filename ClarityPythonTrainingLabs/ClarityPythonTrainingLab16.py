@@ -44,3 +44,14 @@ def email_mailbox_nonumeric(email):
 
 email_mailbox_nonumeric("me@me.com")
 email_mailbox_nonumeric("me2@me.com")
+
+"""
+Write a function which tests if a password is >= 8 characters and meets at 
+least 3 of the following requirements:
+• Has 1+ English uppercase alphabet character (A–Z)
+• Has 1+ English lowercase alphabet character (a–z)
+• Has 1+ Base-10 digits (0–9)
+• Has 1+ Non-alphanumeric characters (for example,
+  !$#,%)
+This function should accept one parameter.
+"""
