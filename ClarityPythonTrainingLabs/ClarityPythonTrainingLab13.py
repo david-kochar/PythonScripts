@@ -8,11 +8,12 @@ new file called my_favorite_subject.txt.
 
 @author: DK
 """
-
+#read in myhiddentext.txt
 txt_file = open("myhiddentext.txt",'r')
 file_data = txt_file.read()
 txt_file.close()
 
+#replace "hidden" with "math"
 new_txt_file = file_data.replace("hidden", "math")
 txt_file = open("myhiddentext.txt",'w')
 txt_file.write(new_txt_file)

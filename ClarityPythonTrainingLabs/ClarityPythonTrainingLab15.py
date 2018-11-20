@@ -30,10 +30,12 @@ json_string_fruits = """
     ]
 }
 """
-fruits_dict = json.loads(json_string_fruits)
+fruits_dict = json.loads(json_string_fruits) #convert json to dict
 
-with open('fruits.csv', 'w') as f:
-    for record in fruits_dict["data"]:
+with open('fruits.csv', 'w') as f: #create csv
+    for record in fruits_dict["data"]: #access "data" key
+        #for each nested dict in data, get their values as str, separate by 
+        #comma, and then add new line
         f.write("," .join([str(i) for i in list(record.values())]) + "\n")
         
 f.close()

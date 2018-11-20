@@ -19,6 +19,8 @@ c) “bananas”, 0, 1.50
 6) save your changes and close the connection
     
 """
+#Pre-requisite for Windows machine: installed sqlite-tools from
+#https://www.sqlite.org/2018/sqlite-tools-win32-x86-3250300.zip
 
 import sqlite3
 
@@ -68,7 +70,7 @@ inventory_connect.execute(
         quantity = "quantity")
         )
 
-#Delete record where quantity is zero        
+#Delete records where quantity is zero        
 inventory_connect.execute(
         'DELETE FROM {table_name} WHERE {quantity} = 0'.\
         format(table_name="fruits", quantity = "quantity")

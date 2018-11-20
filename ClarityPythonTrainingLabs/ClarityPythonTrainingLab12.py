@@ -15,17 +15,18 @@ available from step (3), find and output the years and the names of the dean
 data, omitting the role data.
 
 """
-
+#create tuples for the dean data
 dean_metadata_shermer_il = (1986, "Dean", "Rooney")
 dean_metadata_faber_college = (1978, "Dean", "Wormer")
-      
+
+#create a function to accept n-dean tuples
 def print_tuples(*args):
-    d = {}
+    d = {} #intitialize a dictionary
     deans = args
-    frmat = ("year", "role", "name")
-    for t in deans:
+    frmat = ("year", "role", "name") #create format tuple
+    for t in deans: #created a nested dictionary with each dean tuple
         d[deans.index(t)] = {k[0]:k[1] for k in zip(frmat, t)}
-    for values in d.values():
+    for values in d.values(): #for each d.value, print the year and name
         print(values["year"], values["name"], sep = " ")
         
 print_tuples(dean_metadata_shermer_il, dean_metadata_faber_college)
