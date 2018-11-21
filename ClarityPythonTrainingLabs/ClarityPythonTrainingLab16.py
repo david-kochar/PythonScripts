@@ -55,3 +55,21 @@ least 3 of the following requirements:
   !$#,%)
 This function should accept one parameter.
 """
+
+def password_requirements(password):
+    password = str(password)
+    if len(password) < 8:
+        return f"Your password must be at least 8 characters"
+    elif not re.search(r'[A-Z]', password):
+        return f"Your password needs to contain 1+ English uppercase alphabet character (A–Z)"
+    elif not re.search(r'[a-z]', password):
+        return f"Your password needs to contain 1+ English lowercase alphabet character (a–z)"
+    elif not re.search(r'[0-9]', password):
+        return f"Your password needs to contain 1+ Base-10 digits (0–9)"
+    elif not re.search(r'[\W]', password):
+        return f"Your password needs to contain 1+ Non-alphanumeric characters"
+    else:
+        return f"Your password meets the requirements"
+
+password_requirements("Abcdefg$")
+        
