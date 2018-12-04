@@ -32,38 +32,50 @@ Given a=1, b=2, c=3, ... z=26, create a function to find all possible letter
    combinations the string can generate.
 
 
-   Example input:    ‘1123‘
+   Example input:    '1123'
 
    Expected result:  aabc, kbc (11+2+3), alc (1+12+3), aaw, kw
 """
 
+import itertools
+
 nums = "1123"
 
-# store all the sublists  
+def get_all_substrings(input_string):
+  length = len(input_string)
+  return [input_string[i:j+1] for i in range(length) for j in range(i,length) if len(input_string[i:j+1]) <= 2]
+
+get_all_substrings(nums)
+
+stuff = list(nums)
+for i in range(0, len(stuff)+1):
+    for subset in itertools.combinations(stuff, i):
+        print(f"{i} {subset}")
+
 sublist = [] 
   
-# first loop  
 for i in range(len(nums) + 1): 
-      
-    # second loop  
     for j in range(i + 1, len(nums) + 1): 
-          
-        # slice the subarray  
-        sub = [i, j, nums[i:j]]
-        if len(sub) <= 3:
+        sub = nums[i:j]
+        if len(sub) <= 2:
             sublist.append(sub) 
-        
-singles_sublist = [i for i in sublist if len(i[2]) == 1]
-doubles_sublist = [i for i in sublist if len(i[2]) == 2]
+            
+sublist
 
+#create lists for single and two-digit numbers        
+singles_sublist = [i for i in sublist if len(i) == 1]
+doubles_sublist = [i for i in sublist if len(i) == 2]
+
+for i in range(len(singles_sublist)):
+    print(singles_sublist[i])
+
+#create combinations
 combos = []
-for i in singles_sublist:
-    for j in doubles_sublist:
-        x = range(i[0],i[1])
-        y = range(j[0],j[1])
-        xs = set(x)
-        if not xs.intersection(y) and i[0] < j[0]:
-            combos.append([i[2],j[2]])
+for i in range(len(singles_sublist)):
+    for j in range(i, len(doubles_sublist)):
+        for h in range(j, len(singles_sublist)):
+            sub = [singles_sublist[i] + doubles_sublist[j] + singles_sublist[h]]
+            combos.append(sub)
             
 combos
 
