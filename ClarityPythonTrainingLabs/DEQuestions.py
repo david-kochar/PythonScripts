@@ -52,17 +52,29 @@ for i in range(0, len(stuff)+1):
     for subset in itertools.combinations(stuff, i):
         print(f"{i} {subset}")
 
+nums = "1123"
+
 sublist = [] 
   
 for i in range(len(nums) + 1): 
     for j in range(i + 1, len(nums) + 1): 
-        sub = nums[i:j]
-        if len(sub) <= 2:
+        sub = [i, j, nums[i:j]]
+        if len(sub[2]) <= 2:
             sublist.append(sub) 
             
-sublist
+sublist[1][2]
 
-#create lists for single and two-digit numbers        
+combos = []
+
+for i in sublist:
+    sub = []
+    while len(sub) <= len(nums):
+        sub.append(i[2])
+    combos.append(sub)
+
+combos
+
+#create lists for single and two-digit numbers        `
 singles_sublist = [i for i in sublist if len(i) == 1]
 doubles_sublist = [i for i in sublist if len(i) == 2]
 
