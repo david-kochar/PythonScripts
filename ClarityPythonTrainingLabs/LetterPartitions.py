@@ -33,7 +33,7 @@ def letter_combinations(nums):
     splits = (d for i in range(n) for d in combinations(mid, i)) 
     sequences = sorted([list(map(sub, chain(s, e), chain(b, s))) for s in splits])
     
-    #create new list from sequences where sequence members are less than length 3 (conforms to alphabet),
+    #create new list from sequences where sequence members are less than 3 (up to 2 will decode alphabet),
     #and the sequence sum is equal to nums integer length (remove incomplete sequences)
     sequences_filtered = [i for i in [[num for num in i if num < 3] for i in sequences] if sum(i) == n]
     
@@ -49,7 +49,7 @@ def letter_combinations(nums):
                 sub.append(letter)
             #increment offset by length of last substring
             offset += j
-        #format letter_combos
+        #append and format letter_combos
         letter_partitions.append(''.join(sub))
         
     return letter_partitions
