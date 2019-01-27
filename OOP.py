@@ -127,10 +127,54 @@ villager.hp
 villager.level
 villager.speak()
 
+"""
+Create three classes, Mother, Father and Child
 
+Let Mother have the "dominant" traits:
+    eye_color = "brown"
+    hair_color = "dark brown"
+    hair_type = "curly"
 
+Let Father have "recessive" traits:
+    eye_color = "blue"
+    hair_color = "blond"
+    hair_type = "straight"
 
+Now define Chld to have the same attributes, eye_color, hair_coor,
+and hair type, but don't set them on the class. Instead, let Child's
+Method Resolution Order be such that Child inherits from Mother first,
+then Father
+"""
 
+class Mother:
+    def __init__(self):
+        self.eye_color  = "brown"
+        self.hair_color = "dark brown"
+        self.hair_type  = "curly"
+    
+    def __repr__(self):
+        return f"The Mother has {self.eye_color} eyes, and {self.hair_type}, {self.hair_color} hair"
+        
+class Father:
+    def __init__(self):
+        self.eye_color  = "blue"
+        self.hair_color = "blond"
+        self.hair_type  = "straight"
+
+    def __repr__(self):
+        return f"The Father has {self.eye_color} eyes, and {self.hair_type}, {self.hair_color} hair"
+
+class Child(Mother, Father):        
+    def __repr__(self):
+        return f"The Child has {self.eye_color} eyes, and {self.hair_type}, {self.hair_color} hair"
+        
+Jane = Mother()
+John = Father()
+Billy = Child()
+
+print(Jane)
+print(John)
+print(Billy)
 
 
 
