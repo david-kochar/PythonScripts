@@ -145,6 +145,7 @@ and hair type, but don't set them on the class. Instead, let Child's
 Method Resolution Order be such that Child inherits from Mother first,
 then Father
 """
+import random
 
 class Mother:
     def __init__(self):
@@ -164,9 +165,16 @@ class Father:
     def __repr__(self):
         return f"The Father has {self.eye_color} eyes, and {self.hair_type}, {self.hair_color} hair"
 
-class Child(Mother, Father):        
+class Child(Mother, Father):
+    
+    genders = ["Male", "Female"]
+    
+    def __init__(self, gender = random.choice(genders)):
+        super().__init__()
+        self.gender = gender
+        
     def __repr__(self):
-        return f"The Child has {self.eye_color} eyes, and {self.hair_type}, {self.hair_color} hair"
+        return f"The Child has {self.eye_color} eyes, and {self.hair_type}, {self.hair_color} hair, and is a {self.gender}"
         
 Jane = Mother()
 John = Father()
