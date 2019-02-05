@@ -143,7 +143,8 @@ Let Father have "recessive" traits:
 Now define Chld to have the same attributes, eye_color, hair_coor,
 and hair type, but don't set them on the class. Instead, let Child's
 Method Resolution Order be such that Child inherits from Mother first,
-then Father
+then Father. Also, when Child is instaniated, randomly select a gender of male
+or female.
 """
 import random
 
@@ -183,6 +184,10 @@ Billy = Child()
 print(Jane)
 print(John)
 print(Billy)
+
+"""
+Define len as a special method to return an instance variable
+"""
 
 class Human:
     def __init__(self, height):
@@ -225,7 +230,37 @@ a_train = Train(4)
 print(a_train) # 4 car train
 len(a_train) # 4
     
-    
-    
+"""
+Create an iterator from iterable, using a string
+"""
 
+name = "Dave"
 
+#use a for loop to print the iterator, where the for loop implicitly converts
+#the string iterable into an iterator
+for i in name:
+    print(i)
+
+#A string on its own is an iterable, but it is not an iterator. So, to convert
+#to an iterator, use iter()
+    
+it = iter(name)
+it #produces string string iterator object
+
+#now, use next() on the iterator to return the next item, or character. Append
+#to a list to show the successive return of the item
+
+next_list = []
+
+next_list.append(next(it))
+next_list.append(next(it))
+next_list.append(next(it))
+next_list.append(next(it))
+
+next_list
+
+nested_list = [['a','b','c'], ['d', 'e', 'f']]
+
+flattend_list = [i for lst in nested_list for i in lst]
+
+flattend_list
