@@ -59,9 +59,10 @@ specs_homeinfo_keys = ["zpid",
                       ] #set().union(*(d["homeInfo"].keys() for d in specs))
 
 #Create a nested dict of all listings
-specs_dict = {}
 
 #Generate nested dicts where each dict represents a listing record
+specs_dict = {} #create empty dict
+
 for i in specs:
     for k in i["homeInfo"]:
         specs_dict[specs.index(i)] = {k: i["homeInfo"].get(k, None) for k in specs_homeinfo_keys}
