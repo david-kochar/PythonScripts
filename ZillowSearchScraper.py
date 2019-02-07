@@ -21,6 +21,21 @@ page    = requests.get(url, headers = headers)
 tree    = html.fromstring(page.content)
 
 """
+base_url = "https://www.zillow.com/homes/for_sale/Minneapolis-MN/5983_rid/globalrelevanceex_sort/45.116055,-93.015404,44.825073,-93.507386_rect/11_zm/"
+urls = [base_url]
+
+path_counter = 1
+while True:
+    page = requests.get(url, headers = headers)
+    if page.status_code != 200:
+        break
+    path_counter += 1
+    url = base_url + str(path_counter) + "_p/"
+    urls.append(url)
+urls
+"""
+
+"""
 Parse listing data. Note that "specs" will need to be further parsed as it
 contains nested dicts of property details
 """
