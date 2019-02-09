@@ -43,13 +43,6 @@ for url in urls:
     specs.append( [str(i).replace('<!--', '').replace('-->', '').replace('\\', '').replace('false', 'False').replace('true', 'True').replace('null', '"' + '' + '"' )
             for i in tree.xpath('//li//div//comment()')] )
 
-"""
-with open('specs_dump.txt', 'w') as f:
-    for item in specs:
-        f.write("%s\n" % item)
-f.close()
-"""
-
 #Parse listing data. Note that "specs" will need to be further parsed as it
 #contains nested dicts of property details
 
