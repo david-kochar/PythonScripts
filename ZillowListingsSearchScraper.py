@@ -12,16 +12,15 @@ import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from lxml import html
-#import ast
 
 session = requests.Session()
-retry   = Retry(connect=3, backoff_factor=0.5)
+retry   = Retry(connect=3, backoff_factor=0.5) #used for request to delay to avoid blacklisting
 adapter = HTTPAdapter(max_retries=retry)
 session.mount('http://', adapter)
 session.mount('https://', adapter)
 
 headers    = {'user-agent': 'ListingsScraper/0.0.1'} #create headers for legimate requests
-url        = "https://www.zillow.com/homes/for_sale/Minneapolis-MN/5983_rid/globalrelevanceex_sort/45.116055,-93.015404,44.825073,-93.507386_rect/11_zm/"
+url        = "https://www.zillow.com/homes/for_sale/Minneapolis-MN/5983_rid/globalrelevanceex_sort/45.116055,-93.015404,44.825073,-93.507386_rect/11_zm/" #base url for Minneapolis listings
 base_url   = url
 urls       = [base_url] #seed urls list with base url
 specs      = [] #create empty list for listing dicts
@@ -29,7 +28,7 @@ specs_dict = {} #create empty dict for nesting listing dicts
 
 path_counter = 2 #succesive listing pages start at 2
 while True:
-    url = base_url + str(path_counter) + "_p/"
+    url = base_url + str(path_counter) + "_p/" #zillow.com url structure appends page count and _p/
     response = requests.head(url, headers = headers)
     if response.status_code != 200: #build url list for all valid listing pages
         break
@@ -37,8 +36,8 @@ while True:
     path_counter += 1
 
 for url in urls:
-    page  = session.get(url, headers = headers)
-    tree  = html.fromstring(page.content)
+    page = session.get(url, headers = headers)
+    tree = html.fromstring(page.content)
     #relevant listing info is embedded in comments, and need to pre-scrub html to coerce into dicts
     specs.append( [str(i).replace('<!--', '').replace('-->', '').replace('\\', '').replace('false', 'False').replace('true', 'True').replace('null', '"' + '' + '"' )
             for i in tree.xpath('//li//div//comment()')] )
@@ -49,7 +48,8 @@ for url in urls:
 specs = [ eval(i) for lst in specs for i in lst ] #remove quotes to allow iteration
 
 #create list of relevant dict keys for nested "homeInfo" dicts
-specs_homeinfo_keys = ["zpid", 
+specs_homeinfo_keys = [
+                       "zpid", 
                        "streetAddress", 
                        "zipcode", 
                        "city", 
@@ -67,7 +67,7 @@ specs_homeinfo_keys = ["zpid",
                        "brokerId", 
                        "contactPhone", 
                        "zestimate" 
-                      ] #set().union(*(d["homeInfo"].keys() for d in specs))
+                      ] 
 
 #Generate nested dicts where each dict represents a listing record    
 for i in specs:
