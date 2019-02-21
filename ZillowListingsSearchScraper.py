@@ -20,7 +20,9 @@ session.mount('http://', adapter)
 session.mount('https://', adapter)
 
 headers    = {'user-agent': 'ListingsScraper/0.0.1'} #create headers for legimate requests
-url        = "https://www.zillow.com/homes/for_sale/Minneapolis-MN/5983_rid/globalrelevanceex_sort/45.116055,-93.015404,44.825073,-93.507386_rect/11_zm/" #base url for Minneapolis listings
+state      = input ( "Enter a state two-letter abbreviation: " )
+city       = input ( "Enter a city: " )
+url        = "https://www.zillow.com/homes/for_sale/" + city + "-" + state + "/11_zm/" #base url for listings
 base_url   = url
 urls       = [base_url] #seed urls list with base url
 specs      = [] #create empty list for listing dicts
@@ -75,13 +77,15 @@ for i in specs:
         specs_dict[specs.index(i)] = {k: i["homeInfo"].get(k, '') for k in specs_homeinfo_keys} 
 
 #Export csv of listings
-with open('ZillowReport.csv', 'w') as f: #create csv
+with open ( 'ZillowReport.csv', 'w' ) as f: #create csv
     
     #write header row
-    f.write("," .join([i for i in specs_homeinfo_keys]) + "\n")
+    f.write ("," .join([i for i in specs_homeinfo_keys]) + "\n")
     
     #write row for each listing dict.values
     for record in specs_dict.values(): 
-        f.write("," .join([str(i) for i in list(record.values())]) + "\n")
-        
+        f.write ("," .join ( ['"' + str(i) + '"' for i in list ( record.values() ) ] ) + "\n" )
+         
 f.close()
+
+print(f"Zillow For-Sale Listings extract complete for {city}, {state}")
