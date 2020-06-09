@@ -4,7 +4,7 @@ Created on Tue May  5 09:02:11 2020
 
 @author: dkochar1
 
-Given a string, find the length of the longest substring without repeating characters
+Given a string, return the length of the longest substring without repeating characters
 
 """
 
