@@ -18,12 +18,12 @@ class Solution:
         if (divisor < 0 and dividend > 0) or (divisor > 0 and dividend < 0):
             dividend = abs(dividend)
             divisor  = abs(divisor)
-            while divisor < dividend:
+            while divisor <= dividend:
                 dividend -= divisor
                 i += 1
             print(-(i))
         else:
-            while divisor < dividend:
+            while divisor <= dividend:
                 dividend -= divisor
                 i += 1
             print(i)
@@ -31,4 +31,4 @@ class Solution:
 
 s = Solution()
 
-s.divide(21, 6) #3
+s.divide(21, 6)
