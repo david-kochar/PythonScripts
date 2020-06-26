@@ -29,8 +29,8 @@ class Solution:
         for i in range(0, len(height_w_idx)):                          #permute through height, take x and index of x
             x                = height_w_idx[i][0]
             idx_x            = height_w_idx[i][1]
-            height_w_idx_rem = height_w_idx[:i] + height_w_idx[i + 1:] #take remainder of height
-            for j in range(0, len(height_w_idx_rem)):                  #permute through remainder of eight, take x and index of x
+            height_w_idx_rem = height_w_idx[:i] + height_w_idx[i + 1:] #take remainder of height with indices
+            for j in range(0, len(height_w_idx_rem)):                  #permute through remainder, take x and index of x
                 x2     = height_w_idx_rem[j][0]
                 idx_x2 = height_w_idx_rem[j][1]
                 area   = min(x, x2) * abs(idx_x - idx_x2)              #calculate area
