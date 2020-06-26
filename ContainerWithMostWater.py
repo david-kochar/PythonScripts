@@ -7,6 +7,11 @@ forms a container, such that the container contains the most water.
 
 Note: You may not slant the container and n is at least 2.
 
+Example:
+
+Input: [1,8,6,2,5,4,8,3,7]
+Output: 49
+
 """
 
 class Solution:
