@@ -33,7 +33,7 @@ print(permute_list)
 for i in range(0, len(nums)):
     num     = nums[i]
     num_idx = i
-    compare_list = nums[:i]+nums[i+1:]
+    compare_list = nums[:i] + nums[i+1:]
     for j in compare_list:
         idx_pair = [num_idx, nums.index(j)]
         idx_pair.sort()
