@@ -33,11 +33,11 @@ class Solution:
             for j in range(0, len(height_w_idx_rem)):                  #permute through remainder, take x and index of x
                 y2     = height_w_idx_rem[j][0]
                 idx_y2 = height_w_idx_rem[j][1]
-                area   = min(y, y2) * abs(idx_y - idx_y2)              #calculate area
+                area   = min(y, y2) * abs(idx_y - idx_y2)              #calculate area. Min prevents slant, abs calculates absolute length
                 areas.append(area)
             
         return max(areas)                                              #find max area from areas
 
 s = Solution()
 
-s.maxArea([1,8,6,2,5,4,8,3,7])
+s.maxArea([1,8,6,2,5,4,8,3,7]) #49

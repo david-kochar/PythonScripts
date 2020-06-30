@@ -126,7 +126,7 @@ print(answer, end = ' ')
 
 #flatten list
 
-non_flat = [ [1,2,3], [4,5,6], [7,8] ]
+non_flat = [ [1,2,3], [4,5,6], [7,8, 9] ]
 
 [y for x in non_flat for y in x]
 
