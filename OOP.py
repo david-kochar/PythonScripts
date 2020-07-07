@@ -224,7 +224,7 @@ class Train:
     
     
     def __repr__(self):
-        return f"{self.num_cars} car train"
+        return str(self.num_cars) + " car train" #f"{self.num_cars} car train"
     
 a_train = Train(4)
 print(a_train) # 4 car train
@@ -258,9 +258,3 @@ next_list.append(next(it))
 next_list.append(next(it))
 
 next_list
-
-nested_list = [['a','b','c'], ['d', 'e', 'f']]
-
-flattend_list = [i for lst in nested_list for i in lst]
-
-flattend_list
