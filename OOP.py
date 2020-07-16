@@ -229,32 +229,3 @@ class Train:
 a_train = Train(4)
 print(a_train) # 4 car train
 len(a_train) # 4
-    
-"""
-Create an iterator from iterable, using a string
-"""
-
-name = "Dave"
-
-#use a for loop to print the iterator, where the for loop implicitly converts
-#the string iterable into an iterator
-for i in name:
-    print(i)
-
-#A string on its own is an iterable, but it is not an iterator. So, to convert
-#to an iterator, use iter()
-    
-it = iter(name)
-it #produces string string iterator object
-
-#now, use next() on the iterator to return the next item, or character. Append
-#to a list to show the successive return of the item
-
-next_list = []
-
-next_list.append(next(it))
-next_list.append(next(it))
-next_list.append(next(it))
-next_list.append(next(it))
-
-next_list
