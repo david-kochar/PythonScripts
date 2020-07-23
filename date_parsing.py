@@ -13,5 +13,5 @@ def parse_date(date_string):
     if bool(date_regex.search(date_string)):
         return {"d":matches.group("d"), "m":matches.group("m"), "y":matches.group("y")}
 
-parse_date("12,04,2003")
+parse_date("12/04/2003")
 parse_date("12,04,200312")
