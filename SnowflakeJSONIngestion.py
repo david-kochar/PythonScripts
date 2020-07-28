@@ -79,7 +79,7 @@ def snowflake_json_ingestion():
     # Load staging table
     sfq.execute(f"COPY INTO {sfStageTable} from @%{sfStage}/{fname}.gz file_format = JSON_FILE_FORMAT")
     
-    print(f"Successfuly loaded json from {jsonURL} into {sfStageTable}")
+    print(f"Successfuly loaded JSON from {jsonURL} into {sfDatabase}.{sfSchema}.{sfStageTable}!")
         
 if __name__ == '__main__':
     snowflake_json_ingestion()
