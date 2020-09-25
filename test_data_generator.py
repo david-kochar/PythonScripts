@@ -23,8 +23,6 @@ write_path = f"{home}/{file_name}.csv"
 
 if delim == "tab":
     delim = "\t"
-else:
-    delim
 
 print("\nWriting test data delimited file...\n")
 
@@ -37,4 +35,4 @@ with open(write_path, mode="w", newline="", encoding="utf-8") as f:
         row = [choice(value_list) for i in range(int(header_count))]
         writer.writerow(row)
 
-print("Test data writing complete!\n")
+print(f"Test data writing completed at {home}\\{file_name}.csv\n")
