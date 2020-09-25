@@ -14,7 +14,7 @@ def format_data_type(data_type):
     return formatted_data_type
 
 
-# this function returns a table count
+# Returns table row count
 def getTableRowCount(schema_name, table_name, conn):
     row_count = f"SELECT count(*) from {schema_name}.{table_name};"
     query = conn.execute(row_count)
@@ -22,6 +22,7 @@ def getTableRowCount(schema_name, table_name, conn):
     return set[0]
 
 
+# Dynmaically builds profiling queries based on table column data types
 def build_query(meta_data):
     freq_values_limit = 5
     schema_name = meta_data["schema_name"]
@@ -100,6 +101,7 @@ def build_query(meta_data):
     return query_list
 
 
+# Executes profling queries and collects results for file output
 def execute_query(query_list, conn):
     executed_queries = [query_list[i] for i in range(5)]
     for query in query_list[5:]:
@@ -108,7 +110,7 @@ def execute_query(query_list, conn):
             set = query.fetchall()
             if len(set) == 1:
                 set = set[0][0]
-            else:  # return dictionary of value, count where NONE is replaced
+            else:  # return dictionary of value:count where NONE is replaced
                 set = [("NULL", i[1]) if i[0] is None else i for i in set]
                 set = dict(set)
             executed_queries.append(set)
@@ -117,12 +119,14 @@ def execute_query(query_list, conn):
     return executed_queries
 
 
+# Writes profiling results to csv
 def write_to_csv(query, writer):
     writer.writerow(query)
 
 
 if __name__ == "__main__":
 
+    # Create command line arguments
     parser = argparse.ArgumentParser(
         description="Parses input to identify schema and tables"
     )
@@ -166,9 +170,9 @@ if __name__ == "__main__":
 
     home = str(Path.home())  # get working directory path for writing set
 
-    # write profiling set to csv
+    # Write profiling set to csv
     with open(
-        f"{home}/profiling_set.csv", mode="w", newline="", encoding="utf-8"
+        f"{home}/profiling_results.csv", mode="w", newline="", encoding="utf-8"
     ) as data_file:
         data_writer = csv.writer(
             data_file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
@@ -199,4 +203,4 @@ if __name__ == "__main__":
     crsr.close()
     conn.close()
 
-    print(f"\nProfiling complete! set at {home}\\profiling_set.csv\n")
+    print(f"\nProfiling complete! Results at {home}\\profiling_results.csv\n")
