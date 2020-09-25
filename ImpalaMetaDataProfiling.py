@@ -18,8 +18,8 @@ def format_data_type(data_type):
 def getTableRowCount(schema_name, table_name, conn):
     row_count = f"SELECT count(*) from {schema_name}.{table_name};"
     query = conn.execute(row_count)
-    set = query.fetchone()
-    return set[0]
+    rows = query.fetchone()
+    return rows[0]
 
 
 # Dynmaically builds profiling queries based on table column data types
@@ -68,8 +68,8 @@ def build_query(meta_data):
                               count(*) \
                               FROM {schema_name}.{table_name} \
                               GROUP BY nullif(trim({column_name}), '') \
-                              ORDER BY \
-                                  count(nullif(trim({column_name}), '')) DESC \
+                              ORDER BY count(coalesce(nullif(trim \
+                              ({column_name}), ''), '__NO_VALUE__' )) DESC \
                               LIMIT {freq_values_limit};"
     elif data_type == "timestamp":
         null_query = f"select count(*) \
@@ -107,13 +107,13 @@ def execute_query(query_list, conn):
     for query in query_list[5:]:
         if query:
             query = conn.execute(query)
-            set = query.fetchall()
-            if len(set) == 1:
-                set = set[0][0]
+            rows = query.fetchall()
+            if len(rows) == 1:
+                rows = rows[0][0]
             else:  # return dictionary of value:count where NONE is replaced
-                set = [("NULL", i[1]) if i[0] is None else i for i in set]
-                set = dict(set)
-            executed_queries.append(set)
+                rows = [("NULL", i[1]) if i[0] is None else i for i in rows]
+                rows = dict(rows)
+            executed_queries.append(rows)
         else:
             executed_queries.append("")
     return executed_queries
@@ -140,7 +140,7 @@ if __name__ == "__main__":
 
     conn.execute(f"use {schema};")  # Use desired schema
 
-    print(f"\nStarting meta_data profiling in schema {schema}...\n")
+    print(f"\nStarting metadata profiling in schema {schema}...\n")
 
     if args.tables:
         tables_list = args.tables.split(",")
@@ -168,9 +168,9 @@ if __name__ == "__main__":
                 }
             )
 
-    home = str(Path.home())  # get working directory path for writing set
+    home = str(Path.home())  # get working directory path for writing results
 
-    # Write profiling set to csv
+    # Write profiling results to csv
     with open(
         f"{home}/profiling_results.csv", mode="w", newline="", encoding="utf-8"
     ) as data_file:
@@ -195,10 +195,10 @@ if __name__ == "__main__":
         for query_data in mdata:
             query_table = query_data["table_name"]
             query_column = query_data["column_name"]
-            print(f"Collecting meta_data for {query_table}.{query_column}")
+            print(f"Collecting metadata for {query_table}.{query_column}")
             query_list = build_query(query_data)
-            query_set = execute_query(query_list, conn)
-            write_to_csv(query_set, data_writer)
+            query_rows = execute_query(query_list, conn)
+            write_to_csv(query_rows, data_writer)
 
     crsr.close()
     conn.close()
