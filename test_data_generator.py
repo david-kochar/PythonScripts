@@ -14,7 +14,8 @@ def rand_string(n):
 
 def rand_integer(n):
     n = int(n)
-    return rand.randint(pow(10, n - 1), pow(10, n) - 1)
+    num = rand.randint(pow(10, n - 1), pow(10, n) - 1)
+    return num
 
 
 def write_test_data():
