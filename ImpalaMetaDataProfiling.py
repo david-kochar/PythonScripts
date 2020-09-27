@@ -145,10 +145,10 @@ if __name__ == "__main__":
         tables_list = [table[0] for table in tables_crsr.fetchall()]
         tables_crsr.close()
 
-    mdata = []  # Initialize empty list to collect meta_data
-    tables_dict = {}
+    mdata = []  # Initialize empty list to collect metadata dicts
+    tables_dict = {}  # Initialize empty dict to collect metadata k,v pairs
 
-    for table in tables_list:  # loop through table list to get table meta_data
+    for table in tables_list:  # loop through table list to get table metadata
         crsr = conn.execute(f"describe {table};")
         for row in crsr.fetchall():
             if table not in tables_dict.keys():
