@@ -37,6 +37,15 @@ def build_query(meta_data):
     null_query = ""
     min_query = ""
     max_query = ""
+    null_select = f"select count(*) \
+                    from {schema_name}.{table_name} \
+                    where {column_name} is null;"
+    mean_select = f"SELECT round(avg({column_name}), 2) \
+                    FROM {schema_name}.{table_name};"
+    min_select = f"SELECT MIN({column_name}) \
+                   FROM {schema_name}.{table_name};"
+    max_select = f"SELECT MAX({column_name}) \
+                   FROM {schema_name}.{table_name};"
 
     if data_type not in [
         "char",
@@ -48,22 +57,15 @@ def build_query(meta_data):
         "struct",
         "boolean",
     ]:  # if numeric
-        mean_query = f"SELECT round(avg({column_name}), 2) \
-                       FROM {schema_name}.{table_name};"
-        null_query = f"select count(*) \
-                       from {schema_name}.{table_name} \
-                       where {column_name} is null;"
-        min_query = f"SELECT MIN({column_name}) \
-                      FROM {schema_name}.{table_name};"
-        max_query = f"SELECT MAX({column_name}) \
-                      FROM {schema_name}.{table_name};"
+        mean_query = mean_select
+        null_query = null_select
+        min_query = min_select
+        max_query = max_select
     elif data_type in ["char", "string", "varchar"]:  # if structured string
         count_distinct_query = f"select \
                               count(distinct nullif(trim({column_name}), '')) \
                               from {schema_name}.{table_name};"
-        null_query = f"select count(*) \
-                       from {schema_name}.{table_name} \
-                       where nullif(trim({column_name}), '') is null;"
+        null_query = null_select
         freq_values_query = f"SELECT nullif(trim({column_name}), ''), \
                               count(*) \
                               FROM {schema_name}.{table_name} \
@@ -72,17 +74,11 @@ def build_query(meta_data):
                               ({column_name}), ''), '__NO_VALUE__' )) DESC \
                               LIMIT {freq_values_limit};"
     elif data_type == "timestamp":
-        null_query = f"select count(*) \
-                       from {schema_name}.{table_name} \
-                       where {column_name} is null;"
-        min_query = f"SELECT MIN({column_name}) \
-                      FROM {schema_name}.{table_name};"
-        max_query = f"SELECT MAX({column_name}) \
-                      FROM {schema_name}.{table_name};"
+        null_query = null_select
+        min_query = min_select
+        max_query = max_select
     else:  # else, non-structured or BOOLEAN types
-        null_query = f"select count(*) \
-                       from {schema_name}.{table_name} \
-                       where nullif(trim({column_name}), '') is null;"
+        null_query = null_select
 
     query_list = [
         schema_name,
