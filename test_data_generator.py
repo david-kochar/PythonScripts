@@ -21,11 +21,11 @@ def rand_integer(n):
 def write_test_data():
     with open(write_path, mode="w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f, delimiter=delim)
-        header = ["C" + str(i + 1) for i in range(int(header_count))]
+        header = ["C" + str(i + 1) for i in range(int(column_count))]
         writer.writerow(header)
         for i in range(int(rows)):
             value_list = [rand_string(val_len), rand_integer(val_len)]
-            row = [choice(value_list) for i in range(int(header_count))]
+            row = [choice(value_list) for i in range(int(column_count))]
             writer.writerow(row)
 
 
@@ -42,7 +42,7 @@ be written in csv format to the current working directory.
     time.sleep(3)
 
     home = str(Path.home())
-    header_count = input("Enter number of columns to create: ")
+    column_count = input("Enter number of columns to create: ")
     rows = input("Enter number of rows to create: ")
     val_len = input("Enter length for random string or integer: ")
     delim = input("Enter delimiter. If tab, enter 'tab': ")
