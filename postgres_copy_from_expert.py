@@ -26,11 +26,30 @@ def copy_from_local():
     qual_table = f"{schema_name}.{table_name}"
     header = input("Does the file have a header? (y/n): ")
     delim = input("Enter delimiter. If tab, enter 'tab': ")
-    null_val = input("Enter null value. If empty string, press enter: ")
+    file_format = input("Enter 'TEXT' or 'CSV' file format: ")
     file_path = input("Enter fully qualified file path: ")
+    quote_char = input("Enter quote character: ")
+    esc_char = input("Enter quote escape character: ")
+
+    if quote_char == '"':
+        quote_char = """'\\"'"""
+    else:
+        quote_char = "''''"
+
+    if esc_char == '"':
+        esc_char = """'\\"'"""
+    else:
+        esc_char = "''''"
 
     if delim == "tab":
         delim = "\t"
+
+    copy_sql = f"COPY {qual_table} \
+                 FROM '{file_path}' \
+                 DELIMITER '{delim}' \
+                 {file_format} \
+                 QUOTE {quote_char} \
+                 ESCAPE {esc_char};"
 
     cur = conn.cursor()
 
@@ -39,9 +58,9 @@ def copy_from_local():
     with open(file_path, "r") as f:
         if header.upper() == "Y":
             next(f)  # Skip the header row
-            cur.copy_from(f, qual_table, sep=delim, null=null_val, size=8192)
+            cur.copy_expert(copy_sql, f, size=8192)
         else:
-            cur.copy_from(f, qual_table, sep=delim, null=null_val, size=8192)
+            cur.copy_expert(copy_sql, f, size=8192)
 
     print("Copying data complete!\n")
 
