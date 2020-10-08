@@ -43,7 +43,7 @@ def copy_from_local():
         else:
             cur.copy_from(f, qual_table, sep=delim, null=null_val, size=8192)
 
-    print("Copying complete!\n")
+    print("Copying data complete!\n")
 
     conn.commit()
     cur.close()
