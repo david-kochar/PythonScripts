@@ -1,5 +1,7 @@
 import getpass
 import os
+import time
+from datetime import timedelta
 
 import psycopg2
 
@@ -48,6 +50,8 @@ def copy_from_local():
 
     print(f"\nCopying data from {file_dir} into {qual_table}...\n")
 
+    copy_start_time = time.time()
+
     copy_list = [
         os.path.join(file_dir, f)
         for f in os.listdir(file_dir)
@@ -75,7 +79,10 @@ def copy_from_local():
     conn.commit()
     cur.close()
 
-    print("\nCopying data complete!\n")
+    copy_elapsed_time = time.time() - copy_start_time
+    copy_elapsed_time = str(timedelta(seconds=copy_elapsed_time))
+
+    print(f"\nCopying completed in {copy_elapsed_time}!\n")
 
 
 if __name__ == "__main__":
