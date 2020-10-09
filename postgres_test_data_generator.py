@@ -44,9 +44,9 @@ if __name__ == "__main__":
 
     intro = """
 This application will create test data with random strings and integers of
-specified length, and generate the corresponding DDL. Columns are generically
-named C1, C2...Cn. Test data will be written in csv format to the current
-working directory.
+specified length, and will also generate corresponding DDL. Columns are
+generically named C1, C2...Cn. Test data will be written in csv format to the
+current working directory.
     """
 
     print(intro)
