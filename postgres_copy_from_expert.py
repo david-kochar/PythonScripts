@@ -76,11 +76,11 @@ def copy_from_local():
             else:
                 cur.copy_expert(copy_sql, f, size=8192)
 
-    conn.commit()
-    cur.close()
-
     copy_elapsed_time = time.time() - copy_start_time
     copy_elapsed_time = str(timedelta(seconds=copy_elapsed_time))
+
+    conn.commit()
+    cur.close()
 
     print(f"\nCopying completed in {copy_elapsed_time}!\n")
 
