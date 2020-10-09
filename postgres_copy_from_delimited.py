@@ -25,7 +25,10 @@ def copy_from_local():
 
 if __name__ == "__main__":
 
-    print("\nThis application will load delimited files via postgres COPY\n")
+    print(
+        "\nThis application will load delimited files into a Postgres table \
+             via COPY\n"
+    )
 
     db_username = input("Enter Username: ")
     db_password = getpass.getpass("Enter Password: ")
