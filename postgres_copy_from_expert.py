@@ -46,7 +46,7 @@ def copy_from_local():
 
     cur = conn.cursor()
 
-    print("\nCopying data...\n")
+    print(f"\nCopying data from {file_dir} into {qual_table}...\n")
 
     copy_list = [
         os.path.join(file_dir, f)
@@ -56,13 +56,15 @@ def copy_from_local():
 
     for file_path in copy_list:
         file_format = file_path[-3:]
-        copy_sql = f"COPY {qual_table} \
-                     FROM '{file_path}' \
-                     DELIMITER '{delim}' \
-                     {file_format} \
-                     QUOTE {quote_char} \
-                     ESCAPE {esc_char};"
-        print(f"Copying from {file_path} into {schema_name}.{table_name}")
+        copy_sql = (
+            f"COPY {qual_table} "
+            f"FROM '{file_path}' "
+            f"DELIMITER '{delim}' "
+            f"{file_format} "
+            f"QUOTE {quote_char} "
+            f"ESCAPE {esc_char};"
+        )
+        print(f"Copying from {file_path}")
         with open(file_path, "r") as f:
             if header.upper() == "Y":
                 next(f)  # Skip the header row
@@ -70,10 +72,10 @@ def copy_from_local():
             else:
                 cur.copy_expert(copy_sql, f, size=8192)
 
-    print("\nCopying data complete!\n")
-
     conn.commit()
     cur.close()
+
+    print("\nCopying data complete!\n")
 
 
 if __name__ == "__main__":
