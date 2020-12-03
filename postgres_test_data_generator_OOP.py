@@ -5,7 +5,7 @@ from pathlib import Path
 from random import choice
 
 
-class create_test_data:
+class TestData:
     def __init__(self):
         self.home = str(Path.home())
         self.column_count = input("Enter number of columns to create: ")
@@ -18,12 +18,12 @@ class create_test_data:
         self.schema_name = input("Enter schema name for DDL: ")
         self.table_name = input("Enter table name for DDL: ")
 
-    def rand_string(self, val_len):
+    def generate_rand_string(self, val_len):
         n = int(self.val_len)
         text = "".join(rand.choices(string.ascii_uppercase, k=n))
         return text
 
-    def rand_integer(self, val_len):
+    def generate_rand_int(self, val_len):
         n = int(self.val_len)
         num = rand.randint(pow(10, n - 1), pow(10, n) - 1)
         return num
@@ -41,7 +41,7 @@ class create_test_data:
             for i in range(int(self.row_count)):
                 writer.writerow(row)
 
-    def write_stage_table_ddl(self):
+    def write_pg_ddl(self):
         ddl_write_path = f"{self.home}/{self.table_name}.sql"
         column_count = int(self.column_count)
         header = ["C" + str(i + 1) for i in range(column_count)]

@@ -18,15 +18,15 @@ def rand_integer(n):
     return num
 
 
-def write_test_data():
+def write_test_data(write_path, row_delim):
     with open(csv_write_path, mode="w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f, delimiter=delim)
+        writer = csv.writer(f, delimiter=row_delim)
         writer.writerow(header)
         for i in range(int(rows)):
             writer.writerow(row)
 
 
-def create_ddl():
+def create_ddl(write_path, ddl_list):
     with open(ddl_write_path, mode="w") as f:
         f.write(f"DROP TABLE IF EXISTS {qual_table};\n")
         f.write(f"CREATE UNLOGGED TABLE {qual_table} (\n")
@@ -43,10 +43,10 @@ def create_ddl():
 if __name__ == "__main__":
 
     intro = """
-This application will create test data with random strings and integers of
+\nThis application will create test data with random strings and integers of
 specified length, and will also generate corresponding DDL. Columns are
-generically named C1, C2...Cn. Test data will be written in csv format to the
-current working directory.
+generically named C1, C2...Cn. Test data and DDL are written to the current
+working directory\n
     """
 
     print(intro)
@@ -68,15 +68,15 @@ current working directory.
     value_list = [rand_string(val_len), rand_integer(val_len)]
     row = [choice(value_list) for i in range(int(column_count))]
     data_types = ["numeric" if str(i).isnumeric() else "text" for i in row]
-    ddl_list = list(zip(header, data_types))
+    column_ddl = list(zip(header, data_types))
 
     if delim == "tab":
         delim = "\t"
 
     print("\nGenerating test data...\n")
 
-    write_test_data()
-    create_ddl()
+    write_test_data(csv_write_path, delim)
+    create_ddl(ddl_write_path, column_ddl)
 
     print(f"Test data generated to {home}\\{file_name}.csv\n")
 
