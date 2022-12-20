@@ -130,11 +130,6 @@ def handler(req):
     
     # base_url = "https://access.blueberry.org/api/v1/Organizations/"
     
-    # sub_directories = [f"Profile/{org_id}/{page_num}",
-    #                    "/Relationships/",
-    #                    "/Certifications/",
-    #                    "/Aliases/"]
-    
 # print(handler({
 #     "secrets": {"AppKey" : "HNONuU8D440tCJnp", "AppPassword" : "HNONuU8D440tCJnp", "AppUserPassword" : "1ofuTaSwlqugebosU791!"},
 # 	"state" : {}
