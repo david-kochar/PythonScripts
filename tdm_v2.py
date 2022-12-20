@@ -3,18 +3,19 @@ import pandas as pd
 import io
 import hashlib
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 #Make API request
 def make_request(url, api_key):
     
-    response = requests.get(url, headers = {"content-type":"application/octet-stream", "charset":"utf-8"})
-    
     try:
-        response.raise_for_status()
+        response = requests.get(url, headers = {"content-type":"application/octet-stream", "charset":"utf-8"})
+        if response.status_code == 200:
+            return response.text
+        if response.status_code == 400:
+            return None
     except requests.exceptions.HTTPError as e:
         return "Error: " + str(e)
-    else:
-        return response.text
 
 #Transform API request to Dataframe for manipulation
 def create_dataframe(response_text):
@@ -65,46 +66,79 @@ def create_dataframe(response_text):
     
     return source_df
 
-#Create expected JSON response format
-def assemble_response_json(df):
-    
-    #get max year_and_month for state value
-    max_year_and_month = df['year_and_month'].astype(int).max()
-    max_year_and_month = str(max_year_and_month)
+def assemble_response_dict(df):
+    #Creates dictionary from dataframe to add to response json inserts
     
     #create dict from dataframe for inserts
-    inserts = df.to_dict('records')
+    inserts = df.to_dict('records')  
     
-    response_dict = {
-        "state" : {"tdm" : max_year_and_month},
-        "insert" : {"tdm" : inserts},
-        "schema" : {"tdm" : {"primary_key" : ["sha1_hash"]}},
-        "hasMore" : False
-    }
-
-    response_json = response_dict
-    
-    return response_json
+    return inserts
 
 def handler(req):
     
-    request_json = req.get_json()
+    request_json = req#.get_json()
     api_key = request_json['secrets']['apiKey']
-
-    #Define rolling begin date to pass to API. Rolling period begin is 2 years prior to beginning of current year
-    rolling_period_begin = str(datetime.now().year - 2) + '01'
     
-    #periodEnd of 209912 is unbounded, to get most recent data
+    #create arrary of months to use for state. Use -2 month offset as API data lags 
+    months = pd.date_range('2000-01-01', str(datetime.now().date() + relativedelta(months = -2)), 
+                freq='MS').strftime("%Y%m").tolist()
+    
+    #Ensure combinations are ordered so state will be reliable  
+    months.sort()
+    
+    if request_json["state"]:
+        year_month = request_json["state"]["year_month"]
+    else:
+        year_month = months[0] #default for initial load
+    
+    #Declare has_more so we make follow-up calls until last state is reached
+    if year_month != months[-1]:
+        has_more = True
+    else:
+        has_more = False
+    
+    #Initialize dict to collect json response
+    response_json = {
+        "insert" : {},
+        "schema" : {},
+        "state" : {}
+    }
+
     #API parameters are here: https://docs.google.com/document/d/1kS0qg2QNWffispPBek4xbg99KdZrYTe6/edit?usp=sharing&ouid=103569479876314240031&rtpof=true&sd=true
-    url = f"https://www1.tdmlogin.com/tdm/api/api.asp?key={api_key}&reporter=US&lang=EN&flow=B&includeDesc=Y&periodBegin={rolling_period_begin}&periodEnd=209912&encoding=UTF8&levelDetail=8&includeUnits=BOTH"
+    url = f"https://www1.tdmlogin.com/tdm/api/api.asp?key={api_key}&reporter=US&lang=EN&flow=B&includeDesc=Y&periodBegin={year_month}&periodEnd={year_month}&encoding=UTF8&levelDetail=8&includeUnits=BOTH"
     
     #Invoke API request function
-    response_text = make_request(url, api_key)
+    response = make_request(url, api_key)
+
+    #if empty response, capture metadata
+    if (not response):
+        response_json["insert"] = {"empty_requests" : [{"request_url" : url, "year_month" : year_month}]}
+        response_json["schema"]["empty_requests"] = {"primary_key": ["year_month"]}
+    #if response, invoke helper functions
+    else:
+        #Invoke dataframe creation function
+        response_dataframe = create_dataframe(response)
+            
+        #Invoke dict assembly function and append entity values to response_json
+        entity_values = assemble_response_dict(response_dataframe)
+            
+        response_json["insert"] = {"tdm" : entity_values}
+        response_json["schema"]["tdm"] = {"primary_key": ["sha1_hash"]}
     
-    #Invoke dataframe creation function
-    response_dataframe = create_dataframe(response_text)
+    if has_more:
+        next_year_month = months[months.index(year_month) + 1]
+    else:
+        next_year_month = year_month
     
-    #Invoke json response assembly function
-    response_json = assemble_response_json(response_dataframe)
+    response_json["hasMore"] = has_more
+    
+    #increment state
+    response_json["state"]["year_month"] = next_year_month
     
     return response_json
+
+with open('tdm_log.txt', 'w') as f:
+    f.write(str(handler({
+    "secrets": {"apiKey": "dhhqkfpsbglkrybrhbwtoekdkbtdlfbc"},
+	"state" : {}
+})))
