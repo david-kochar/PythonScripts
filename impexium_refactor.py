@@ -98,6 +98,14 @@ def create_dataframe(response_json):
     
     return source_df_flat
 
+def assemble_response_dict(df):
+    #Creates dictionary from dataframe to add to response json inserts
+    
+    #create dict from dataframe for inserts
+    inserts = df.to_dict('records')  
+    
+    return inserts
+
 def handler(req):
     #Is entry point for function. Sets variables and executes defined functions
     
@@ -118,6 +126,23 @@ def handler(req):
     orgs_json = get_org_ids(changed_since, app_key, app_password, app_user_password)
     
     orgs = list(set([item for sublist in [i["dataList"] for i in orgs_json] for item in sublist]))
+    
+    orgs.sort()
+    
+    if request_json["state"]:
+        org = request_json["state"]["org_id"]
+    else:
+        org = orgs[0]
+        
+    if org != orgs[-1]:
+        has_more = True
+    else:
+        has_more = False
+    
+    urls = ["https://access.blueberry.org/api/v1/Organizations/Profile/"
+        ]
+    
+    
     
     return orgs
     
