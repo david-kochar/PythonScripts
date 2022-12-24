@@ -59,8 +59,15 @@ def handler(req):
     months_and_partner_codes = []
     
     #create arrary of months to use for state value. Use -2 month offset as API data lags
-    months = pd.date_range('2000-01-01', str(datetime.now().date() + relativedelta(months = -2)), 
-                freq='MS').strftime("%Y%m").tolist()
+    if request_json["state"]:
+        start_year_month = request_json["state"]["year_month"]
+        dt = start_year_month[:4] + "-" + start_year_month[4:6] + "-01"
+        months = pd.date_range(dt, str(datetime.now().date() + relativedelta(months = -2)), 
+                    freq='MS').strftime("%Y%m").tolist()
+    #create years and months array from 2000 for initial sync
+    else:
+        months = pd.date_range('2000-01-01', str(datetime.now().date() + relativedelta(months = -2)), 
+                    freq='MS').strftime("%Y%m").tolist()
     
     #based on GATS country codes
     partner_codes = ["A1", "A2", "AA", "AC", "AE", "AF", "AG", "AJ", "AL", "AM", 
@@ -105,7 +112,7 @@ def handler(req):
     if request_json["state"]:
         year_month_partner = request_json["state"]["year_month_partner"]
     else:
-        year_month_partner = months_and_partner_codes[0] #default for initial load
+        year_month_partner = months_and_partner_codes[0]
 
     #parse state to use for url request parameters    
     year = str(year_month_partner[0:4])
@@ -139,8 +146,7 @@ def handler(req):
         #derive table name from url
         table_name = url.split("/", 6)[-1].replace("/", "_").lower()
             
-        request_url = ""
-        request_url = url + "/partnerCode/" + partner_code + "/year/" + year + "/month/" + month
+        request_url = f"{url}/partnerCode/{partner_code}/year/{year}/month/{month}"
     
         #Invoke API request function
         response_text = make_request(request_url, api_key)
@@ -165,7 +171,7 @@ def handler(req):
     if has_more:
         next_year_month_partner = months_and_partner_codes[months_and_partner_codes.index(year_month_partner) + 1]
     else:
-        next_year_month_partner = year_month_partner
+        next_year_month_partner = months_and_partner_codes[0]
     
     #Combine entity inserts
     inserts = {
@@ -185,8 +191,9 @@ def handler(req):
     
     response_json["schema"] = schemas
     
-    #increment state
+    #Increment state
     response_json["state"]["year_month_partner"] = next_year_month_partner
+    response_json["state"]["year_month"] = next_year_month_partner[0:6]
     
     return response_json
 

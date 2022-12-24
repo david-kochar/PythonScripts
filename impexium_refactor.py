@@ -46,7 +46,7 @@ def make_request(url, credentials):
     except requests.exceptions.HTTPError as e:
         return "Error: " + str(e)
     
-def paginate(url, app_key, app_password, app_user_password):
+def paginate(url, app_key, app_password, app_user_password, **kwargs):
     
     credentials = get_credentials(
                         {"AppName": "SnowflakeApiProd", "AppKey": app_key}
@@ -64,26 +64,44 @@ def paginate(url, app_key, app_password, app_user_password):
     responses = []
     
     while True:
-        request_url = f"{url}{page_num}"
-        response_json = make_request(request_url, credentials)
-        if (not response_json):
-            break
-        responses.append(response_json)
-        page_num += 1
+        if kwargs["changed_since"]:
+            yyyymmdd = kwargs["changed_since"][0:8]
+            hhmm = kwargs["changed_since"][-4:]
+            request_url = url.format(yyyymmdd_param = yyyymmdd, hhmm_param = hhmm, page_num_param = page_num)
+            response_json = make_request(request_url, credentials)
+            if (not response_json):
+                break
+            responses.append(response_json)
+            page_num += 1
+        elif kwargs["org_id"]:
+            org_id = kwargs["org_id"]
+            request_url = url.format(org_id_param = org_id, page_num_param = page_num)
+            response_json = make_request(request_url, credentials)
+            if (not response_json):
+                break
+            responses.append(response_json)
+            page_num += 1            
+        else:
+            request_url = url.format(page_num_param = page_num)
+            response_json = make_request(request_url, credentials)
+            if (not response_json):
+                break
+            responses.append(response_json)
+            page_num += 1           
     
     return responses
     
-def get_org_ids(changed_since, app_key, app_password, app_user_password):
+# def get_org_ids(changed_since, app_key, app_password, app_user_password):
     
-    yyyymmdd = changed_since[0:8]
+#     yyyymmdd = changed_since[0:8]
     
-    hhmm = changed_since[-4:]
+#     hhmm = changed_since[-4:]
     
-    url = f"https://access.blueberry.org/api/v1/Organizations/ChangedSince/{yyyymmdd}/{hhmm}/"
+#     url = f"https://access.blueberry.org/api/v1/Organizations/ChangedSince/{yyyymmdd}/{hhmm}/"
     
-    response = paginate(url, app_key, app_password, app_user_password)
+#     response = paginate(url, app_key, app_password, app_user_password)
     
-    return response
+#     return response
 
 def create_dataframe(response_json):
     #Transform API request to Dataframe for manipulation
@@ -123,26 +141,28 @@ def handler(req):
         
     #Get all Orgs changed on or after a given date. Initial sync will fetch all orgs
     
-    orgs_json = get_org_ids(changed_since, app_key, app_password, app_user_password)
+    changed_orgs_url = "https://access.blueberry.org/api/v1/Organizations/ChangedSince/{yyyymmdd_param}/{hhmm_param}/{page_num_param}"
     
-    orgs = list(set([item for sublist in [i["dataList"] for i in orgs_json] for item in sublist]))
+    changed_orgs_json = paginate(changed_orgs_url, app_key, app_password, app_user_password, changed_since = changed_since)
+    
+    orgs = list(set([item for sublist in [i["dataList"] for i in changed_orgs_json] for item in sublist]))
     
     orgs.sort()
     
-    if request_json["state"]:
-        org = request_json["state"]["org_id"]
-    else:
-        org = orgs[0]
+    # if request_json["state"]:
+    #     org = request_json["state"]["org_id"]
+    # else:
+    #     org = orgs[0]
         
-    if org != orgs[-1]:
-        has_more = True
-    else:
-        has_more = False
+    # if org != orgs[-1]:
+    #     has_more = True
+    # else:
+    #     has_more = False
     
-    urls = ["https://access.blueberry.org/api/v1/Organizations/Profile/"
-        ]
-    
-    
+    # urls = ["https://access.blueberry.org/api/v1/Organizations/Profile/{org_param}/{page_num_param}"
+    #         # ,"https://access.blueberry.org/api/v1/Organizations/{org_param}/Relationships/{page_num_param}",
+    #         # "https://access.blueberry.org/api/v1/Organizations/{org_param}/Subscriptions/{page_num_param}"
+    #         ]
     
     return orgs
     
