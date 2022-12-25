@@ -130,36 +130,40 @@ def handler(req):
     
     orgs.sort()
     
-    # if request_json["state"]:
-    #     org = request_json["state"]["org_id"]
-    # else:
-    #     org = orgs[0]
+    if request_json["state"]:
+        org = request_json["state"]["org_id"]
+    else:
+        org = orgs[0]
         
-    # if org != orgs[-1]:
-    #     has_more = True
-    # else:
-    #     has_more = False
+    if org != orgs[-1]:
+        has_more = True
+    else:
+        has_more = False
     
-    # urls = ["https://access.blueberry.org/api/v1/Organizations/Profile/{org_param}/{page_num_param}"
-    #         # ,"https://access.blueberry.org/api/v1/Organizations/{org_param}/Relationships/{page_num_param}",
-    #         # "https://access.blueberry.org/api/v1/Organizations/{org_param}/Subscriptions/{page_num_param}"
-    #         ]
+    #create url list with parameter place holders
+    urls = ["https://access.blueberry.org/api/v1/Organizations/Profile/{org_param}/{page_num_param}",
+            "https://access.blueberry.org/api/v1/Organizations/{org_param}/Relationships/{page_num_param}",
+            "https://access.blueberry.org/api/v1/Organizations/{org_param}/Subscriptions/{page_num_param}"
+            ]
+    
+    #Initialize dict to collect json response
+    response_json = {
+        "insert" : {},
+        "schema" : {},
+        "state" : {}
+    }
+    
+    #Initialize list to collect API url request responses
+    url_responses = []
+    
+    for url in urls:
+        
+        #derive table name from url
+        table_name = (url.split("/", 6)[-1].replace("/", "_")).replace("{", "").replace("}", "").split("_")
+        table_name.sort()
+        table_name = table_name[0].lower()
     
     return orgs
-    
-    #Get count of Org IDs to use for subsequent requests
-    #orgs = [i["id"] for i in d["dataList"]]
-        
-    # page_num = "1"
-    
-    # org_id = ""
-    
-    # base_url = "https://access.blueberry.org/api/v1/Organizations/"
-    
-# print(handler({
-#     "secrets": {"AppKey" : "HNONuU8D440tCJnp", "AppPassword" : "HNONuU8D440tCJnp", "AppUserPassword" : "1ofuTaSwlqugebosU791!"},
-# 	"state" : {}
-# }))
 
 with open('impexium_orgs.txt', 'w') as f:
     f.write(str(handler({
