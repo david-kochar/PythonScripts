@@ -68,40 +68,19 @@ def paginate(url, app_key, app_password, app_user_password, **kwargs):
             yyyymmdd = kwargs["changed_since"][0:8]
             hhmm = kwargs["changed_since"][-4:]
             request_url = url.format(yyyymmdd_param = yyyymmdd, hhmm_param = hhmm, page_num_param = page_num)
-            response_json = make_request(request_url, credentials)
-            if (not response_json):
-                break
-            responses.append(response_json)
-            page_num += 1
         elif kwargs["org_id"]:
             org_id = kwargs["org_id"]
-            request_url = url.format(org_id_param = org_id, page_num_param = page_num)
-            response_json = make_request(request_url, credentials)
-            if (not response_json):
-                break
-            responses.append(response_json)
-            page_num += 1            
+            request_url = url.format(org_id_param = org_id, page_num_param = page_num)          
         else:
             request_url = url.format(page_num_param = page_num)
-            response_json = make_request(request_url, credentials)
-            if (not response_json):
-                break
-            responses.append(response_json)
-            page_num += 1           
+            
+        response_json = make_request(request_url, credentials)
+        if (not response_json):
+            break
+        responses.append(response_json)
+        page_num += 1
     
     return responses
-    
-# def get_org_ids(changed_since, app_key, app_password, app_user_password):
-    
-#     yyyymmdd = changed_since[0:8]
-    
-#     hhmm = changed_since[-4:]
-    
-#     url = f"https://access.blueberry.org/api/v1/Organizations/ChangedSince/{yyyymmdd}/{hhmm}/"
-    
-#     response = paginate(url, app_key, app_password, app_user_password)
-    
-#     return response
 
 def create_dataframe(response_json):
     #Transform API request to Dataframe for manipulation
@@ -110,8 +89,10 @@ def create_dataframe(response_json):
     
     json_struct = json.loads(source_df.to_json(orient="records"))
     
+    #unnest json
     source_df_flat = pd.json_normalize(json_struct)
     
+    #remove prefix of dataList from dataframe column headers
     source_df_flat.columns = source_df_flat.columns.str.removeprefix("dataList.")
     
     return source_df_flat
@@ -127,7 +108,7 @@ def assemble_response_dict(df):
 def handler(req):
     #Is entry point for function. Sets variables and executes defined functions
     
-    #current_ts = (datetime.datetime.now() - timedelta(days = 3)).strftime("%Y%m%d%H%M")
+    current_ts = (datetime.datetime.now() - timedelta(days = 7)).strftime("%Y%m%d%H%M")
     
     request_json = req #req.get_json()
     app_key = request_json["secrets"]["AppKey"]
