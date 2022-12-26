@@ -38,9 +38,7 @@ def make_request(url, credentials):
     headers = {"Content-Type": "application/json", "UserToken" : user_token, "AppToken" : app_token}
     
     try:
-        print(url)
         response = requests.get(url, headers = headers)
-        print(response.status_code)
         if response.status_code == 200:
             return json.loads(response.text)
         if response.status_code == 404 or response.status_code == 400:
@@ -99,7 +97,8 @@ def assemble_response_dict(df):
 def handler(req):
     #Is entry point for function. Sets variables and executes defined functions
     
-    current_ts = (datetime.datetime.now() - timedelta(days = 7)).strftime("%Y%m%d%H%M")
+    #Create numeric timestamp for state with -3 day offset 
+    current_ts_offset = (datetime.datetime.now() - timedelta(days = 3)).strftime("%Y%m%d%H%M")
     
     request_json = req #req.get_json()
     app_key = request_json["secrets"]["AppKey"]
@@ -117,10 +116,10 @@ def handler(req):
                         }
                     )
     
-    if request_json["state"]:
+    if request_json["state"] and "changed_since" in request_json["state"].keys():
         changed_since = request_json["state"]["changed_since"]
     else:
-        changed_since = "202212120000" #"175301010000" #Min formatted timestamp
+        changed_since = "175301010000" #Min formatted timestamp
         
     #Get all Orgs changed on or after a given date. Initial sync will fetch all orgs
     
@@ -132,7 +131,7 @@ def handler(req):
     
     org_ids.sort()
     
-    if request_json["state"]:
+    if request_json["state"] and "org_id" in request_json["state"].keys():
         org_id = request_json["state"]["org_id"]
     else:
         org_id = org_ids[0]
@@ -160,36 +159,57 @@ def handler(req):
     for url in urls:
         
         #derive table name from url
-        table_name = (url.split("/", 6)[-1].replace("/", "_")).replace("{", "").replace("}", "").split("_")
-        table_name.sort()
-        table_name = table_name[0].lower()
+        table_name = [i for i in url.split("/", 6)[-1].split("/") if i[0].isupper()][0].lower()
         
         request_url = url
         
-        response_json = make_request(request_url, credentials)
+        request_response = make_request(request_url, credentials)
         
-        url_responses.append(response_json)
+        #if empty response, capture metadata
+        if (not request_response):              
+            url_responses.append({"empty_requests" : [{"id" : org_id + changed_since, "request_url" : request_url, "org_id" : org_id, "changed_since" : changed_since}]})
+        #if response, invoke helper functions
+        else:
+            #Invoke dataframe creation function
+            response_dataframe = create_dataframe(request_response)
+            
+            entity_values = assemble_response_dict(response_dataframe)
+            
+            url_responses.append({table_name : entity_values})
+        
+    #Combine entity inserts
+    inserts = {
+            k: [val for sublist in [d[k] for d in url_responses if k in d] for val in sublist]
+            for k in set().union(*url_responses)
+        }
     
-    return url_responses
+    response_json["insert"] = inserts
+    
+    response_json["hasMore"] = has_more
+    
+    #get array of entity names
+    entities = list(response_json["insert"].keys())
+    
+    #apply schemas to entity names
+    schemas = {i: {"primary_key": ["id"]} for i in entities}
+    
+    response_json["schema"] = schemas
+    
+    #Update state
+    if has_more:
+        next_org_id = org_ids[org_ids.index(org_id) + 1]
+        response_json["state"]["org_id"] = next_org_id
+        request_json["state"]["changed_since"] = changed_since
+    else:
+        del request_json["state"]["org_id"]
+        request_json["state"]["changed_since"] = current_ts_offset
+    
+    return response_json
 
 with open('impexium_orgs.txt', 'w') as f:
     f.write(str(handler({
         "secrets": {"AppKey" : "HNONuU8D440tCJnp", "AppPassword" : "HNONuU8D440tCJnp", "AppUserPassword" : "1ofuTaSwlqugebosU791!"},
     	"state" : {}
     })))
-
-print(get_credentials({"AppName": "SnowflakeApiProd", "AppKey": "HNONuU8D440tCJnp"},
-                    {"AppId":"SnowflakeApiProd",
-                    "AppPassword":"HNONuU8D440tCJnp",
-                    "AppUserEmail":"Snowflake_api@integration.com",
-                    "AppUserPassword":"1ofuTaSwlqugebosU791!"}))
-
-# create_dataframe(make_request("https://access.blueberry.org/api/v1/Organizations/Members/All/1", get_credentials({"AppName": "SnowflakeApiProd", "AppKey": "HNONuU8D440tCJnp"},
-#                     {"AppId":"SnowflakeApiProd",
-#                     "AppPassword":"HNONuU8D440tCJnp",
-#                     "AppUserEmail":"Snowflake_api@integration.com",
-#                     "AppUserPassword":"1ofuTaSwlqugebosU791!"}))).to_csv("impexium_orgs_flattened.csv")
-
-
 
 
