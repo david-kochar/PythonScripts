@@ -38,7 +38,9 @@ def make_request(url, credentials):
     headers = {"Content-Type": "application/json", "UserToken" : user_token, "AppToken" : app_token}
     
     try:
+        print(url)
         response = requests.get(url, headers = headers)
+        print(response.status_code)
         if response.status_code == 200:
             return json.loads(response.text)
         if response.status_code == 404 or response.status_code == 400:
@@ -46,29 +48,18 @@ def make_request(url, credentials):
     except requests.exceptions.HTTPError as e:
         return "Error: " + str(e)
     
-def paginate(url, app_key, app_password, app_user_password, **kwargs):
-    
-    credentials = get_credentials(
-                        {"AppName": "SnowflakeApiProd", "AppKey": app_key}
-                        ,         
-                        {
-                          "AppId" : "SnowflakeApiProd",
-                          "AppPassword" : app_password,
-                          "AppUserEmail" : "Snowflake_api@integration.com",
-                          "AppUserPassword" : app_user_password
-                        }
-                    )
+def paginate(url, credentials, **kwargs):
     
     page_num = 1
     
     responses = []
     
     while True:
-        if kwargs["changed_since"]:
+        if kwargs.get("changed_since"):
             yyyymmdd = kwargs["changed_since"][0:8]
             hhmm = kwargs["changed_since"][-4:]
             request_url = url.format(yyyymmdd_param = yyyymmdd, hhmm_param = hhmm, page_num_param = page_num)
-        elif kwargs["org_id"]:
+        elif (not kwargs.get("changed_since")) and kwargs.get("org_id"):
             org_id = kwargs["org_id"]
             request_url = url.format(org_id_param = org_id, page_num_param = page_num)          
         else:
@@ -115,35 +106,45 @@ def handler(req):
     app_password = request_json["secrets"]["AppPassword"]
     app_user_password = request_json["secrets"]["AppUserPassword"]
     
+    credentials = get_credentials(
+                        {"AppName": "SnowflakeApiProd", "AppKey": app_key}
+                        ,         
+                        {
+                          "AppId" : "SnowflakeApiProd",
+                          "AppPassword" : app_password,
+                          "AppUserEmail" : "Snowflake_api@integration.com",
+                          "AppUserPassword" : app_user_password
+                        }
+                    )
+    
     if request_json["state"]:
         changed_since = request_json["state"]["changed_since"]
     else:
-        changed_since = "175301010000" #Min formatted timestamp
+        changed_since = "202212120000" #"175301010000" #Min formatted timestamp
         
     #Get all Orgs changed on or after a given date. Initial sync will fetch all orgs
     
     changed_orgs_url = "https://access.blueberry.org/api/v1/Organizations/ChangedSince/{yyyymmdd_param}/{hhmm_param}/{page_num_param}"
     
-    changed_orgs_json = paginate(changed_orgs_url, app_key, app_password, app_user_password, changed_since = changed_since)
+    changed_orgs_json = paginate(changed_orgs_url, credentials, changed_since = changed_since)
     
-    orgs = list(set([item for sublist in [i["dataList"] for i in changed_orgs_json] for item in sublist]))
+    org_ids = list(set([item for sublist in [i["dataList"] for i in changed_orgs_json] for item in sublist]))
     
-    orgs.sort()
+    org_ids.sort()
     
     if request_json["state"]:
-        org = request_json["state"]["org_id"]
+        org_id = request_json["state"]["org_id"]
     else:
-        org = orgs[0]
+        org_id = org_ids[0]
         
-    if org != orgs[-1]:
+    if org_id != org_id[-1]:
         has_more = True
     else:
         has_more = False
     
-    #create url list with parameter place holders
-    urls = ["https://access.blueberry.org/api/v1/Organizations/Profile/{org_param}/{page_num_param}",
-            "https://access.blueberry.org/api/v1/Organizations/{org_param}/Relationships/{page_num_param}",
-            "https://access.blueberry.org/api/v1/Organizations/{org_param}/Subscriptions/{page_num_param}"
+    urls = [f"https://access.blueberry.org/api/v1/Organizations/Profile/{org_id}/1",
+            f"https://access.blueberry.org/api/v1/Organizations/{org_id}/Relationships/1",
+            f"https://access.blueberry.org/api/v1/Organizations/{org_id}/Subscriptions/1"
             ]
     
     #Initialize dict to collect json response
@@ -162,8 +163,14 @@ def handler(req):
         table_name = (url.split("/", 6)[-1].replace("/", "_")).replace("{", "").replace("}", "").split("_")
         table_name.sort()
         table_name = table_name[0].lower()
+        
+        request_url = url
+        
+        response_json = make_request(request_url, credentials)
+        
+        url_responses.append(response_json)
     
-    return orgs
+    return url_responses
 
 with open('impexium_orgs.txt', 'w') as f:
     f.write(str(handler({
@@ -171,11 +178,11 @@ with open('impexium_orgs.txt', 'w') as f:
     	"state" : {}
     })))
 
-# print(get_credentials({"AppName": "SnowflakeApiProd", "AppKey": "HNONuU8D440tCJnp"},
-#                     {"AppId":"SnowflakeApiProd",
-#                     "AppPassword":"HNONuU8D440tCJnp",
-#                     "AppUserEmail":"Snowflake_api@integration.com",
-#                     "AppUserPassword":"1ofuTaSwlqugebosU791!"}))
+print(get_credentials({"AppName": "SnowflakeApiProd", "AppKey": "HNONuU8D440tCJnp"},
+                    {"AppId":"SnowflakeApiProd",
+                    "AppPassword":"HNONuU8D440tCJnp",
+                    "AppUserEmail":"Snowflake_api@integration.com",
+                    "AppUserPassword":"1ofuTaSwlqugebosU791!"}))
 
 # create_dataframe(make_request("https://access.blueberry.org/api/v1/Organizations/Members/All/1", get_credentials({"AppName": "SnowflakeApiProd", "AppKey": "HNONuU8D440tCJnp"},
 #                     {"AppId":"SnowflakeApiProd",
