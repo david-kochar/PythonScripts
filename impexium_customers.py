@@ -74,9 +74,9 @@ def paginate(url, credentials, **kwargs):
         
         #if response, increment page number to paginate
         page_num += 1
-        
-        #Pause for 3 seconds to avoid API limitations
-        time.sleep(3)
+
+        #Pause for 1 second to avoid API limitations
+        time.sleep(1)
     
     return responses
 
@@ -154,8 +154,8 @@ def handler(req):
     urls = [
         f"https://access.blueberry.org/api/v1/Organizations/Profile/{org_id}/1",
         f"https://access.blueberry.org/api/v1/Organizations/{org_id}/Relationships/1",
-        f"https://access.blueberry.org/api/v1/Organizations/{org_id}/Services",
-        f"https://access.blueberry.org/api/v1/Organizations/{org_id}/Subscriptions/1"
+        f"https://access.blueberry.org/api/v1/Organizations/{org_id}/Services"
+        #,f"https://access.blueberry.org/api/v1/Organizations/{org_id}/Subscriptions/1"
     ]
     
     #Initialize dict to collect json response
@@ -176,6 +176,9 @@ def handler(req):
         request_url = url
         
         request_response = make_request(request_url, credentials)
+        
+        #Pause for 1 seconds to avoid API limitations
+        time.sleep(1)
         
         #if empty response, capture metadata
         if (not request_response):              
@@ -225,21 +228,10 @@ def handler(req):
     else:
         response_json["state"]["changed_since"] = current_ts_offset
     
-    #Pause for 3 seconds to avoid API limitations
-    time.sleep(3)
-    
     return response_json
 
-print(get_credentials({"AppName": "SnowflakeApiProd", "AppKey": "HNONuU8D440tCJnp"},
-                    {"AppId":"SnowflakeApiProd",
-                    "AppPassword":"HNONuU8D440tCJnp",
-                    "AppUserEmail":"Snowflake_api@integration.com",
-                    "AppUserPassword":"1ofuTaSwlqugebosU791!"}))
-
-with open('impexium_orgs.txt', 'w') as f:
-    f.write(str(handler({
-        "secrets": {"AppKey" : "HNONuU8D440tCJnp", "AppPassword" : "HNONuU8D440tCJnp", "AppUserPassword" : "1ofuTaSwlqugebosU791!"},
-    	"state" : {}
-    })))
-
-
+# with open('impexium_orgs.txt', 'w') as f:
+#     f.write(str(handler({
+#         "secrets": {"AppKey" : "HNONuU8D440tCJnp", "AppPassword" : "HNONuU8D440tCJnp", "AppUserPassword" : "1ofuTaSwlqugebosU791!"},
+#     	"state" : {}
+#     })))

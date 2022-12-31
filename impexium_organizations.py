@@ -4,6 +4,7 @@ import pandas as pd
 import datetime
 from datetime import timedelta
 import time
+import uuid
 
 def get_credentials(access_body, auth_body):
     
@@ -74,9 +75,9 @@ def paginate(url, credentials, **kwargs):
         
         #if response, increment page number to paginate
         page_num += 1
-        
-        #Pause for 3 seconds to avoid API limitations
-        time.sleep(3)
+
+        #Pause for 1 second to avoid API limitations
+        time.sleep(1)
     
     return responses
 
@@ -107,8 +108,8 @@ def assemble_response_dict(df):
 def handler(req):
     #Is entry point for function. Sets variables and executes defined functions
     
-    #Create numeric timestamp for state with -30 day offset 
-    current_date_offset = (datetime.datetime.now() - timedelta(days = 30)).strftime("%Y%m%d")
+    #Create numeric timestamp for state with -1 day offset 
+    current_date_offset = (datetime.datetime.now() - timedelta(days = 1)).strftime("%Y%m%d")
     current_ts_offset = f"{current_date_offset}0000"
     
     request_json = req #req.get_json()
@@ -136,26 +137,31 @@ def handler(req):
     
     changed_orgs_json = paginate(changed_orgs_url, credentials, changed_since = changed_since)
     
-    #Org IDs reside in DataList element, and the arrarys need to be flattened
-    org_ids = list(set([item for sublist in [i["dataList"] for i in changed_orgs_json] for item in sublist]))
+    if changed_orgs_json:
     
-    org_ids.sort()
-    
-    if request_json["state"] and "org_id" in request_json["state"].keys():
-        org_id = request_json["state"]["org_id"]
-    else:
-        org_id = org_ids[0]
+        #Org IDs reside in DataList element, and the arrarys need to be flattened
+        org_ids = list(set([item for sublist in [i["dataList"] for i in changed_orgs_json] for item in sublist]))
         
-    if org_id != org_ids[-1]:
+        org_ids.sort()
+        
+        if request_json["state"] and "org_id" in request_json["state"].keys():
+            org_id = request_json["state"]["org_id"]
+        else:
+            org_id = org_ids[0]
+    
+    else:
+        org_id = ""
+        
+    if org_id != org_ids[-1] and org_id in org_ids:
         has_more = True
     else:
         has_more = False
     
     urls = [
         f"https://access.blueberry.org/api/v1/Organizations/Profile/{org_id}/1",
-        f"https://access.blueberry.org/api/v1/Organizations/{org_id}/Relationships/1",
-        f"https://access.blueberry.org/api/v1/Organizations/{org_id}/Services",
-        f"https://access.blueberry.org/api/v1/Organizations/{org_id}/Subscriptions/1"
+        f"https://access.blueberry.org/api/v1/Organizations/{org_id}/Relationships/1"
+        #,f"https://access.blueberry.org/api/v1/Organizations/{org_id}/Services"
+        #,f"https://access.blueberry.org/api/v1/Organizations/{org_id}/Subscriptions/1"
     ]
     
     #Initialize dict to collect json response
@@ -177,13 +183,16 @@ def handler(req):
         
         request_response = make_request(request_url, credentials)
         
+        #Pause for 1 seconds to avoid API limitations
+        time.sleep(1)
+        
         #if empty response, capture metadata
         if (not request_response):              
             url_responses.append(
                 {
                     "empty_requests": [
                         {
-                            "id": f"{org_id}-{changed_since}",
+                            "id": str(uuid.uuid4()),
                             "request_url": request_url,
                             "org_id": org_id,
                             "changed_since": changed_since,
@@ -225,21 +234,10 @@ def handler(req):
     else:
         response_json["state"]["changed_since"] = current_ts_offset
     
-    #Pause for 3 seconds to avoid API limitations
-    time.sleep(3)
-    
     return response_json
-
-print(get_credentials({"AppName": "SnowflakeApiProd", "AppKey": "HNONuU8D440tCJnp"},
-                    {"AppId":"SnowflakeApiProd",
-                    "AppPassword":"HNONuU8D440tCJnp",
-                    "AppUserEmail":"Snowflake_api@integration.com",
-                    "AppUserPassword":"1ofuTaSwlqugebosU791!"}))
 
 with open('impexium_orgs.txt', 'w') as f:
     f.write(str(handler({
         "secrets": {"AppKey" : "HNONuU8D440tCJnp", "AppPassword" : "HNONuU8D440tCJnp", "AppUserPassword" : "1ofuTaSwlqugebosU791!"},
-    	"state" : {}
+     	"state" : {}
     })))
-
-
