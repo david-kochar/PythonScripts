@@ -1,3 +1,6 @@
+# requests==2.28.1
+# pandas==1.5.0
+
 import requests
 import pandas as pd
 import io
@@ -23,6 +26,7 @@ def create_dataframe(response):
     source_df["state_fips_code"] = source_df["state_fips_code"].apply(lambda x: str(x).zfill(2)) #pad leading zero
     source_df["begin_code"] = source_df["begin_code"].apply(lambda x: str(x).zfill(2)) #pad leading zero
     source_df["end_code"] = source_df["end_code"].apply(lambda x: str(x).zfill(2)) #pad leading zero
+    source_df["year"] = source_df["year"].apply(str)
     
     #collect columns that uniquely identify a record to hash
     hash_columns = ["group_desc", 
@@ -32,7 +36,9 @@ def create_dataframe(response):
                     "util_practice_desc", 
                     "statisticcat_desc", 
                     "unit_desc",
-                    "state_fips_code"]
+                    "state_fips_code",
+                    "year",
+                    "begin_code"]
     
     #create sha1_hash for unique identifier
     source_df['sha1_hash'] = pd.DataFrame(source_df[hash_columns].values.sum(axis=1))[0].str.encode('utf-8').apply(lambda x: (hashlib.sha1(x).hexdigest().upper()))
@@ -57,7 +63,7 @@ def handler(req):
     current_year = (datetime.date.today()).year
     
     #create arrary of years to use for state
-    years = [i for i in range (2007, current_year)]
+    years = [i for i in range (2002, current_year + 1)]
     
     #Ensure year list is ordered so state will be reliable    
     years.sort()
@@ -80,7 +86,8 @@ def handler(req):
         "state" : {}
     }
             
-    url = f"http://quickstats.nass.usda.gov/api/api_GET/?key={api_key}&source_desc=SURVEY&sector_desc=CROPS&commodity_desc=BLUEBERRIES&agg_level_desc=STATE&group_desc=FRUIT%20%26%20TREE%20NUTS&freq_desc=ANNUAL&year={year}&format=csv"
+    #url = f"http://quickstats.nass.usda.gov/api/api_GET/?key={api_key}&source_desc=SURVEY&sector_desc=CROPS&commodity_desc=BLUEBERRIES&agg_level_desc=STATE&year={year}&format=csv"
+    url = f"http://quickstats.nass.usda.gov/api/api_GET/?key={api_key}&source_desc=SURVEY&sector_desc=CROPS&commodity_desc=BLUEBERRIES&agg_level_desc=STATE&format=csv"
     
     #Invoke API request function
     response = make_request(url, api_key)
@@ -93,6 +100,8 @@ def handler(req):
     else:
         #Invoke dataframe creation function
         response_dataframe = create_dataframe(response)
+        
+        print(response_dataframe.shape[0])
             
         #Invoke dict assembly function and append entity values to response_json
         entity_values = assemble_response_dict(response_dataframe)
@@ -110,9 +119,16 @@ def handler(req):
     #increment state
     response_json["state"]["year"] = next_year
     
-    return response_json
+    return response_dataframe #response_json
 
-with open('nass_log.txt', 'w') as f:
+df = handler({
+    "secrets": {"apiKey": "6FCFC223-607E-3154-A6FB-CBB22663B3F2"},
+	"state" : {}
+})
+
+df.to_csv("nass_dataframe.csv", sep='\t')
+
+with open('nass_response_test.txt', 'w') as f:
     f.write(str(handler({
     "secrets": {"apiKey": "6FCFC223-607E-3154-A6FB-CBB22663B3F2"},
 	"state" : {}

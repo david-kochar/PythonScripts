@@ -43,10 +43,10 @@ def make_request(url, credentials):
         response = requests.get(url, headers = headers)
         if response.status_code == 200:
             json_response = json.loads(response.text)
-            #Add org_id to response
+            #Add individual_id to response
             if "Relationships" in url:
-                org_id = url.split("/")[6]
-                json_response["org_id"] = org_id
+                individual_id = url.split("/")[6]
+                json_response["individual_id"] = individual_id
             else:
                 json_response
             return json_response
@@ -66,13 +66,10 @@ def paginate(url, credentials, **kwargs):
         if kwargs.get("changed_since"):
             yyyymmdd = kwargs["changed_since"][0:8]
             hhmm = kwargs["changed_since"][-4:]
-            request_url = url.format(yyyymmdd_param = yyyymmdd, hhmm_param = hhmm, page_num_param = page_num)
-        elif (not kwargs.get("changed_since")) and kwargs.get("org_id"):
-            org_id = kwargs["org_id"]
-            request_url = url.format(org_id_param = org_id, page_num_param = page_num)          
+            request_url = url.format(yyyymmdd_param = yyyymmdd, hhmm_param = hhmm, page_num_param = page_num)        
         else:
             request_url = url.format(page_num_param = page_num)
-            
+        
         response_json = make_request(request_url, credentials)
         
         #Break out if no response
@@ -100,7 +97,7 @@ def create_dataframe(response_json):
     
     #remove prefix from dataframe column headers
     source_df_flat.columns = source_df_flat.columns.str.removeprefix("dataList.")
-    source_df_flat.columns = source_df_flat.columns.str.removeprefix("relatedToCustomer.")
+    source_df_flat.columns = source_df_flat.columns.str.replace(".", "_", regex = False)
     
     return source_df_flat
 
@@ -137,37 +134,40 @@ def handler(req):
     
     if request_json["state"] and "changed_since" in request_json["state"].keys():
         changed_since = request_json["state"]["changed_since"]
+        #Get all Individuals changed on or after a given date
+        changed_individuals_url = "https://access.blueberry.org/api/v1/Individuals/ChangedSince/{yyyymmdd_param}/{hhmm_param}/{page_num_param}"
     else:
-        changed_since = "175301010000" #Min formatted timestamp
+        #Get all individuals
+        changed_individuals_url = "https://access.blueberry.org/api/v1/Individuals/Members/All/{page_num_param}"
         
-    if request_json["state"] and "org_ids" in request_json["state"].keys():
-        org_ids = request_json["state"]["org_ids"]
+    if request_json["state"] and "individual_ids" in request_json["state"].keys():
+        individual_ids = request_json["state"]["individual_ids"]
     else:
-        #Get all Orgs changed on or after a given date. Initial sync will fetch all Orgs
-        changed_orgs_url = "https://access.blueberry.org/api/v1/Organizations/ChangedSince/{yyyymmdd_param}/{hhmm_param}/{page_num_param}"
-        changed_orgs_json = paginate(changed_orgs_url, credentials, changed_since = changed_since)
-        org_ids = list(set([item for sublist in [i["dataList"] for i in changed_orgs_json] for item in sublist]))
-            
-    org_ids.sort()
-    
-    if request_json["state"] and "org_id" in request_json["state"].keys():
-        org_id = request_json["state"]["org_id"]
-    else:
-        if org_ids:
-            org_id = org_ids[0]
+        if "ChangedSince" in changed_individuals_url:
+            changed_individuals_json = paginate(changed_individuals_url, credentials, changed_since = changed_since)
+            individual_ids = list(set([item for sublist in [i["dataList"] for i in changed_individuals_json] for item in sublist]))
         else:
-            org_id = "" #Assign empty org_id if no orgs have updates
+            changed_individuals_json = paginate(changed_individuals_url, credentials)
+            individual_ids = list(set([item["id"] for sublist in [i["dataList"] for i in changed_individuals_json] for item in sublist]))
+            
+    individual_ids.sort()
+    
+    if request_json["state"] and "individual_id" in request_json["state"].keys():
+        individual_id = request_json["state"]["individual_id"]
+    else:
+        if individual_ids:
+            individual_id = individual_ids[0]
+        else:
+            individual_id = "" #Assign empty individual_id if no individuals have updates
         
-    if org_ids and org_id in org_ids and org_id != org_ids[-1]:
+    if individual_ids and individual_id in individual_ids and individual_id != individual_ids[-1]:
         has_more = True
     else:
         has_more = False
     
     urls = [
-        f"https://access.blueberry.org/api/v1/Organizations/Profile/{org_id}/1",
-        f"https://access.blueberry.org/api/v1/Organizations/{org_id}/Relationships/1"
-        #,f"https://access.blueberry.org/api/v1/Organizations/{org_id}/Services"
-        #,f"https://access.blueberry.org/api/v1/Organizations/{org_id}/Subscriptions/1"
+        f"https://access.blueberry.org/api/v1/Individuals/Profile/{individual_id}/1",
+        f"https://access.blueberry.org/api/v1/Individuals/{individual_id}/Relationships/1"
     ]
     
     #Initialize dict to collect json response
@@ -200,7 +200,7 @@ def handler(req):
                         {
                             "id": hashlib.sha1((url + changed_since).encode('utf-8')).hexdigest().upper(),
                             "request_url": request_url,
-                            "org_id": org_id,
+                            "individual_id": individual_id,
                             "changed_since": changed_since,
                         }
                     ]
@@ -234,16 +234,15 @@ def handler(req):
     
     #Update state
     if has_more:
-        response_json["state"]["org_ids"] = org_ids
-        next_org_id = org_ids[org_ids.index(org_id) + 1]
-        response_json["state"]["org_id"] = next_org_id
-        response_json["state"]["changed_since"] = changed_since
+        response_json["state"]["individual_ids"] = individual_ids
+        next_individual_id = individual_ids[individual_ids.index(individual_id) + 1]
+        response_json["state"]["individual_id"] = next_individual_id
     else:
         response_json["state"]["changed_since"] = current_ts_offset
     
     return response_json
 
-with open('impexium_fivetran_response_test.txt', 'w') as f:
+with open('impexium_individuals_fivetran_response_test.txt', 'w') as f:
     f.write(str(handler({
         "secrets": {"AppKey" : "HNONuU8D440tCJnp", "AppPassword" : "HNONuU8D440tCJnp", "AppUserPassword" : "1ofuTaSwlqugebosU791!"},
      	"state" : {}
